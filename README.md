@@ -4,23 +4,23 @@ A portable agent system for AI-assisted development. Four scoped knowledge files
 
 ## Workspace layout
 
-Clone this repo once per customer. It becomes the workspace root. Clone the customer's repositories inside it under `repos/` (gitignored).
+Clone this repo once per workspace. It becomes the workspace root. Clone the project repositories inside it under `repos/` (gitignored).
 
 ```
-~/projects/customer-name/            <-- agent-industry clone (workspace root)
-  .cursor/commands/mayday.md         <-- detected by Cursor
-  .claude/commands/mayday.md         <-- detected by Claude Code
-  .agent/workflows/mayday.md         <-- detected by Antigravity
-  templates/                         <-- agent templates
-  agent/                             <-- generated per customer (gitignored)
-  repos/                             <-- customer repos (gitignored)
-    customer-repo/
+~/projects/my-workspace/              <-- agent-industry clone (workspace root)
+  .cursor/commands/mayday.md          <-- detected by Cursor
+  .claude/commands/mayday.md          <-- detected by Claude Code
+  .agent/workflows/mayday.md          <-- detected by Antigravity
+  templates/                          <-- agent templates
+  agent/                              <-- generated per workspace (gitignored)
+  repos/                              <-- project repos (gitignored)
+    my-app/
   VERSION
 ```
 
 This structure is required because all three IDEs (Cursor, Claude Code, Antigravity) only detect commands, workflows, and rules from the workspace root. They will not traverse into subdirectories.
 
-Linear is organized with one group (project) per customer, all in your workspace.
+Linear is organized with one group (project) per workspace, all in your Linear team.
 
 ## Entry point
 
@@ -28,7 +28,7 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
 
 | Option | Action | What it does |
 |--------|--------|-------------|
-| init | Initialize a new customer | Validates Linear + Context7, scaffolds agent tree, populates roadmap, creates version card |
+| init | Initialize a new workspace | Validates Linear + Context7, scaffolds agent tree, populates roadmap, creates version card |
 | code | Create a Code Agent | Parses the codebase, generates the CODE-AGENT, updates the master |
 | infra | Create an Infrastructure Agent | Parses infrastructure, generates the INFRA-AGENT, updates the master |
 | deploy | Create a Deploy Agent | Reads infra agents and template, generates the DEPLOY-AGENT with promotion pipeline and rollback procedures |
@@ -58,8 +58,8 @@ templates/                           -- agent templates (source of truth)
   INFRA-AGENT-TEMPLATE.md
   DEPLOY-AGENT-TEMPLATE.md
   ROADMAP-TEMPLATE.md
-repos/                               -- customer repos cloned here (gitignored)
-agent/                               -- generated per-customer (gitignored)
+repos/                               -- project repos cloned here (gitignored)
+agent/                               -- generated per workspace (gitignored)
 VERSION                              -- local version anchor
 CLAUDE.md                            -- Claude Code project context
 AGENTS.md                            -- Antigravity/universal project context
@@ -70,22 +70,22 @@ The Cursor procedure files in `.cursor/procedures/` are the single source of tru
 
 ## Version management
 
-Agent-industry tracks its version through a `VERSION` file at the root and a corresponding Linear card per customer.
+Agent-industry tracks its version through a `VERSION` file at the root and a corresponding Linear card per workspace.
 
-When you initialize a customer (`init`), it creates a Linear card titled `agent-industry-version` in the customer's group with the version as its description.
+When you initialize a workspace (`init`), it creates a Linear card titled `agent-industry-version` in the workspace's group with the version as its description.
 
 When you sync the roadmap (`sync`) or check version (`version`), it compares the local `VERSION` file against the Linear card:
 - Remote newer than local = your copy is outdated, pull the latest
 - Local newer than remote = pushes the new version to Linear
 - Match = in sync
 
-This lets you update agent-industry once, then see which customers are on which version by checking their Linear group.
+This lets you update agent-industry once, then see which workspaces are on which version by checking their Linear group.
 
 ## Prerequisites
 
 Two MCP servers must be configured before running `/mayday`:
 
-**Linear MCP** -- roadmap sync, card management, version tracking. Needs a Linear API key from your workspace.
+**Linear MCP** -- roadmap sync, card management, version tracking. Needs a Linear API key from your team.
 
 **Context7 MCP** -- up-to-date library documentation. Agents use this instead of relying on training data. Get a key at [context7.com/dashboard](https://context7.com/dashboard).
 
@@ -130,22 +130,22 @@ The roadmap agent is the single source of truth for all Linear card rules. Every
 - **MCP usage** -- `create_issue` to create, `issue` to fetch by identifier (never `search_issues`), `update_issue` with UUID
 - **Confidentiality** -- never mention agent files, paths, or internal structure in card content
 
-## Onboarding a new customer
+## Setting up a new workspace
 
 ```bash
-git clone <agent-industry-url> ~/projects/customer-name
-cd ~/projects/customer-name
+git clone <agent-industry-url> ~/projects/my-workspace
+cd ~/projects/my-workspace
 mkdir -p repos
-git clone <customer-repo-url> repos/customer-repo
+git clone <project-repo-url> repos/my-app
 ```
 
 Then:
 
-1. Open `~/projects/customer-name` as the workspace root in your IDE
-2. Create a Linear group (project) for the customer in your workspace
+1. Open `~/projects/my-workspace` as the workspace root in your IDE
+2. Create a Linear group (project) for the workspace in your team
 3. Configure the Linear and Context7 MCP servers if not already done (see setup above)
 4. Run `/mayday` and pick `init`
 
 ## Credits
 
-Author: Clément VEROVE <verove.clement@gmail.com>
+Author: Clement VEROVE <verove.clement@gmail.com>

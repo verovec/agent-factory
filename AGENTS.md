@@ -4,11 +4,11 @@ Portable agent system for AI-assisted development. Scaffolds scoped knowledge fi
 
 ## Entry Point
 
-`/mayday` is the only command. It presents a menu for all operations: initialize customer, create agents, sync roadmap, create Linear cards, check version.
+`/mayday` is the only command. It presents a menu for all operations: initialize workspace, create agents, sync roadmap, create Linear cards, check version.
 
 ## Project Structure
 
-This repo is cloned once per customer. It IS the workspace root. Customer repos are cloned into `repos/` (gitignored).
+This repo is cloned once per workspace. It IS the workspace root. Project repos are cloned into `repos/` (gitignored).
 
 ```
 .cursor/commands/mayday.md           -- the single slash command (source of truth)
@@ -19,9 +19,9 @@ This repo is cloned once per customer. It IS the workspace root. Customer repos 
   rules/agent-system.md              -- always-on behavioral rules
 templates/                           -- agent templates (source of truth)
 templates/mcp.json.example           -- MCP config template (committed)
-repos/                               -- customer repos (gitignored)
-agent/<customer-slug>/               -- generated per-customer (committed)
-.factory-state.json                  -- persisted customer state (gitignored, created by init)
+repos/                               -- project repos (gitignored)
+agent/<workspace-slug>/              -- generated per workspace (committed)
+.factory-state.json                  -- persisted workspace state (gitignored, created by init)
 VERSION                              -- local version anchor
 ```
 
@@ -37,7 +37,7 @@ VERSION                              -- local version anchor
 
 ## Version Tracking
 
-`VERSION` file is the local anchor. A Linear card titled `agent-industry-version` in each customer's group is the remote anchor. `/mayday` option 7 compares them.
+`VERSION` file is the local anchor. A Linear card titled `agent-industry-version` in each workspace's group is the remote anchor. `/mayday` option 7 compares them.
 
 ## MCP Servers
 
