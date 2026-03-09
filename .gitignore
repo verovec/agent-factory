@@ -1,0 +1,16 @@
+# Generated per-customer agent files (never committed to template)
+agent/
+
+# Customer repositories (cloned inside, never committed)
+repos/
+
+# Factory state (local workspace state, created by /mayday init)
+.factory-state.json
+
+# Local planning files
+plan.md
+
+# IDE and OS
+.DS_Store
+*.swp
+mcp.json
