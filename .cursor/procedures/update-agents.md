@@ -1,34 +1,44 @@
 The user wants to update all agent files to reflect changes made during the current work session, then sync Linear cards to match.
 
-This is a post-work housekeeping operation. It reads git changes, recent conversation context, and current agent files to determine what needs updating.
+This is a post-work housekeeping operation. It reads git changes, recent conversation context, and current agent files to determine what needs updating. The system walks the agent tree and only updates agents whose scope intersects with the changes.
 
-## Step 0: Identify scope
+## Step 0: Load the agent tree
 
-1. Read `.factory-state.json` to get `agent_paths` and the list of agent files
-2. Read all MASTER-AGENT files to get roadmap paths and agent registry
+1. Read `.factory-state.json` to get the `tree` and org metadata
+2. Walk the tree recursively to build a flat list of all agent nodes with their types, scopes, scope_paths, and file paths
 3. Detect the current git branch in each repo under `repos/`. If a branch name matches a Linear identifier pattern (e.g. `INF-42-...`), note the ticket(s) involved
 
 ## Step 1: Gather what changed
 
 1. For each repo in `repos/`, run `git diff main --stat` (or the appropriate base branch) to list changed files
-2. Read the current state of all agent files:
-   - MASTER-AGENT(s)
-   - CODE-AGENT(s) if they exist
-   - TEST-AGENT(s) if they exist
-   - INFRA-AGENT(s) if they exist
-   - ROADMAP(s)
-3. Cross-reference changed files against agent scopes:
-   - Terraform / infrastructure changes -> INFRA-AGENT
-   - Application code changes -> CODE-AGENT
-   - Test files, test configuration, coverage changes -> TEST-AGENT
-   - Deployment topology, secrets, env vars, health checks -> INFRA-AGENT
-   - New Linear tickets or state changes -> ROADMAP
+2. Read the current state of all agent files (walk the tree, read each node's file)
+3. Match changed files against agent scopes:
+   - For each agent node that has `scope_paths`, check if any changed file falls within those paths
+   - For agents with `scope: "full"`, all changes in the relevant repo are in scope
+   - For sub-masters, changes are in scope if any of their children's scopes are affected
+
+Build a list of agents that need updating, grouped by parent:
+
+```
+Affected agents:
+
+  MASTER-AGENT (root)
+    SUB-MASTER: Frontend
+      CODE-AGENT (auth) -- 3 files changed in src/auth/
+      TEST-AGENT (auth) -- 1 test file changed
+    CODE-AGENT (full backend) -- 5 files changed
+
+  Not affected:
+    INFRA-AGENT
+    DEPLOY-AGENT
+    ROADMAP (synced separately)
+```
 
 ## Step 2: Update agent files
 
-For each agent file that needs updating:
+For each affected agent (leaf agents first, then sub-masters, then master -- bottom-up order):
 
-1. Read the current file
+1. Read the current agent file
 2. Identify sections that are stale based on the changes detected in Step 1
 3. Update those sections with the new state. Preserve sections that haven't changed.
 4. Set `LAST_UPDATED` to today's date in the metadata block
@@ -38,25 +48,30 @@ For each agent file that needs updating:
 - Do not rewrite prose or restructure sections that are still accurate
 - Do not remove information unless it is provably obsolete
 - Preserve `CREATED`, `DOCUMENT_OWNER`, `AUTHORS` fields as-is
+- For sub-masters: update their Child Registry if any child's scope or status changed
+- For the master: update the top-level Child Registry and hierarchy diagram if the tree structure changed
 
 Show the user a summary of what will change before writing:
 
 ```
 Agent updates:
 
-  INFRA-AGENT-{{ORG_NAME_UPPER}}.md
-    - Current State: update status, remove blocking_issues that are resolved
-    - Secret Architecture: update to reflect completed changes
-    - Services: update configuration to match actual state
-    - Terraform Resources: update resource list
+  CODE-AGENT (auth) -- agent/acme/frontend/code/CODE-AGENT-AUTH.md
+    - Architecture: update to reflect new auth middleware
+    - API Layer: add new /auth/refresh endpoint
 
-  ROADMAP-{{ORG_NAME_UPPER}}.md
-    - TEAM-42: move to Done (or update state)
-    - Current State: update summary
+  CODE-AGENT (full backend) -- agent/acme/code/CODE-AGENT-ACME.md
+    - Data Models: update User schema
+    - Known Gotchas: add note about migration order
+
+  SUB-MASTER: Frontend -- agent/acme/frontend/SUB-MASTER-FRONTEND.md
+    - Child Registry: update CODE-AGENT (auth) status
 
   No changes needed:
-    - CODE-AGENT-{{ORG_NAME_UPPER}}.md
-    - MASTER-AGENT-{{ORG_NAME_UPPER}}.md
+    - INFRA-AGENT
+    - DEPLOY-AGENT
+    - TEST-AGENT (auth)
+    - MASTER-AGENT
 ```
 
 Ask: "Apply these updates?"
@@ -96,7 +111,7 @@ After Linear cards are updated, run the roadmap sync procedure (`.cursor/procedu
 Print a single summary:
 
 ```
-Updated: INFRA-AGENT-{{ORG_NAME_UPPER}}.md, ROADMAP-{{ORG_NAME_UPPER}}.md
+Updated: CODE-AGENT (auth), CODE-AGENT (full backend), SUB-MASTER: Frontend
 Linear:  TEAM-42 -> Done, TEAM-38 -> In Progress
 Roadmap synced.
 ```

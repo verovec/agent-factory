@@ -1,6 +1,32 @@
 # Agent Factory
 
-A portable agent system for AI-assisted development. Five scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by a master agent, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
+A portable agent system for AI-assisted development. A hierarchical tree of scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by master and sub-master agents, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
+
+## Architecture
+
+Agents form a recursive tree with unlimited depth:
+
+- **MASTER-AGENT** -- single root entry point per workspace, orchestrates the full hierarchy
+- **SUB-MASTER** -- intermediate orchestrator for a domain, service, or module (e.g., "Frontend", "API", "Payments")
+- **Leaf agents** (CODE, TEST, INFRA, DEPLOY) -- scoped to a user-defined boundary (a service, a module, or the full repo)
+- **ROADMAP** -- lives at the root, owns all Linear card rules
+
+```
+MASTER
+  +-- ROADMAP
+  +-- SUB-MASTER: Frontend
+  |     +-- CODE-AGENT (auth)
+  |     +-- CODE-AGENT (dashboard)
+  |     +-- TEST-AGENT (auth)
+  |     +-- TEST-AGENT (dashboard)
+  +-- SUB-MASTER: Backend
+  |     +-- CODE-AGENT (full)
+  |     +-- TEST-AGENT (full)
+  |     +-- INFRA-AGENT
+  +-- DEPLOY-AGENT
+```
+
+Each agent is an expert in its domain. Sub-masters delegate downward to their children and upward to their parent for cross-cutting concerns. The tree can be nested as deep as needed.
 
 ## Workspace layout
 
@@ -12,7 +38,7 @@ Clone this repo once per workspace. It becomes the workspace root. Clone the pro
   .claude/commands/mayday.md          <-- detected by Claude Code
   .agent/workflows/mayday.md          <-- detected by Antigravity
   templates/                          <-- agent templates
-  agent/                              <-- generated per workspace (gitignored)
+  agent/                              <-- generated per workspace (committed)
   repos/                              <-- project repos (gitignored)
     my-app/
   VERSION
@@ -24,15 +50,17 @@ Linear is organized with one group (project) per workspace, all in your Linear t
 
 ## Entry point
 
-Run `/mayday` to get started. It is the only slash command exposed across all IDEs. The menu is contextual -- it adapts based on initialization state and which agents exist, prioritizing the most useful next action:
+Run `/mayday` to get started. It is the only slash command exposed across all IDEs. The menu is contextual -- it adapts based on initialization state, agent tree depth, and which agents exist:
 
 | Option | Action | What it does |
 |--------|--------|-------------|
-| init | Initialize a new workspace | Validates Linear + Context7, scaffolds agent tree, populates roadmap, creates version card |
-| code | Create a Code Agent | Parses the codebase, generates the CODE-AGENT and its companion TEST-AGENT, updates the master |
-| infra | Create an Infrastructure Agent | Parses infrastructure, generates the INFRA-AGENT, updates the master |
-| deploy | Create a Deploy Agent | Reads infra agents and template, generates the DEPLOY-AGENT with promotion pipeline and rollback procedures |
-| update | Update agents and sync Linear | Re-scans repos, regenerates stale agents, syncs roadmap and version with Linear |
+| init | Initialize a new workspace | Validates Linear + Context7, scaffolds MASTER + ROADMAP, creates version card |
+| submaster | Create a Sub-Master | Adds an orchestration layer for a domain/service/module |
+| code | Create a Code Agent | Parses the codebase within scope, generates CODE-AGENT under chosen parent |
+| test | Create a Test Agent | Analyzes test landscape within scope, generates TEST-AGENT paired with a code agent |
+| infra | Create an Infrastructure Agent | Parses infrastructure within scope, generates INFRA-AGENT |
+| deploy | Create a Deploy Agent | Reads infra agents, generates DEPLOY-AGENT with promotion pipeline |
+| update | Update agents and sync Linear | Tree-aware update: walks the hierarchy, updates only agents whose scope intersects with changes |
 | sync | Sync Roadmap with Linear | Checks version, pulls latest from Linear, diffs and updates the roadmap |
 | feature | New feature card | Suggests next card from roadmap or drafts a new feature card in Linear |
 | bug | Bug / fix card | Drafts and creates a bug/fix card in Linear following the roadmap's card rules |
@@ -48,6 +76,8 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
     create-code-agent.md
     create-test-agent.md
     create-infra-agent.md
+    create-sub-master.md
+    update-agents.md
     update-roadmap.md
 .claude/commands/mayday.md           -- delegates to .cursor/commands/
 .agent/
@@ -55,17 +85,21 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
   rules/agent-system.md              -- always-on behavioral rules
 templates/                           -- agent templates (source of truth)
   MASTER-AGENT-TEMPLATE.md
+  SUB-MASTER-AGENT-TEMPLATE.md
   CODE-AGENT-TEMPLATE.md
   TEST-AGENT-TEMPLATE.md
   INFRA-AGENT-TEMPLATE.md
   DEPLOY-AGENT-TEMPLATE.md
   ROADMAP-TEMPLATE.md
+  factory-state.json.example
+  mcp.json.example
 repos/                               -- project repos cloned here (gitignored)
-agent/                               -- generated per workspace (gitignored)
+agent/                               -- generated per workspace (committed)
 VERSION                              -- local version anchor
 CLAUDE.md                            -- Claude Code project context
 AGENTS.md                            -- Antigravity/universal project context
-.gitignore                           -- ignores repos/ and agent/
+.factory-state.json                  -- persisted workspace state (gitignored)
+.gitignore                           -- ignores repos/ and .factory-state.json
 ```
 
 The Cursor procedure files in `.cursor/procedures/` are the single source of truth for all logic. Claude Code and Antigravity delegate to them.
@@ -147,6 +181,8 @@ Then:
 2. Create a Linear group (project) for the workspace in your team
 3. Configure the Linear and Context7 MCP servers if not already done (see setup above)
 4. Run `/mayday` and pick `init`
+5. For large projects: create sub-masters first to organize by domain, then create scoped agents under them
+6. For small projects: create agents directly under the master
 
 ## Credits
 

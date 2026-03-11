@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "org_name": "Customer Name",
+  "org_name_slug": "customer-name",
+  "org_name_upper": "CUSTOMER-NAME",
+  "linear_project": "customer-project",
+  "agent_root": "agent/customer-name",
+  "initialized_at": "YYYY-MM-DD",
+  "repos": ["repo-one", "repo-two"],
+  "tree": {
+    "id": "master",
+    "type": "master",
+    "scope": "full",
+    "path": "agent/customer-name/MASTER-AGENT-CUSTOMER-NAME.md",
+    "children": [
+      {
+        "id": "roadmap",
+        "type": "roadmap",
+        "scope": "full",
+        "path": "agent/customer-name/plans/ROADMAP-CUSTOMER-NAME.md",
+        "children": []
+      }
+    ]
+  }
+}

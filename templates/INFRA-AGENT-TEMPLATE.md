@@ -1,17 +1,18 @@
-# INFRA-AGENT: {{ORG_NAME}}
+# INFRA-AGENT: {{SCOPE_NAME}} ({{ORG_NAME}})
 
 ```
 CREATED: {{DATE}}
 LAST_UPDATED: {{DATE}}
 VERSION: 1.0.0
 AGENT_TYPE: infrastructure
-SCOPE: Deployment, IaC, secrets, CI/CD, and operations for {{ORG_NAME}}
-MASTER: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
+SCOPE: {{SCOPE_DESCRIPTION}}
+SCOPE_PATHS: {{SCOPE_PATHS}}
+PARENT: {{PARENT_PATH}}
 ```
 
 ## Linear Card Policy
 
-Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md` > "Linear Card Rules".
+Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `{{ROADMAP_PATH}}` > "Linear Card Rules".
 
 ## CRITICAL WARNING
 
@@ -80,12 +81,21 @@ blocking_issues: []
 
 ---
 
+## Scope Boundary
+
+This agent covers: {{SCOPE_DESCRIPTION}}
+
+Paths: {{SCOPE_PATHS}}
+
+If a task falls outside this scope, delegate to the parent (`{{PARENT_PATH}}`), which will route it to the correct sibling agent.
+
 ## Cross-References
 
 ```yaml
-master_agent: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
-code_agent: agent/{{ORG_NAME_SLUG}}/code/CODE-AGENT-{{ORG_NAME_UPPER}}.md
-roadmap: agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
+parent: {{PARENT_PATH}}
+siblings: {{SIBLING_REFS}}
+code_agent: {{CODE_AGENT_PATH}}
+roadmap: {{ROADMAP_PATH}}
 ```
 
 ## Document Maintenance

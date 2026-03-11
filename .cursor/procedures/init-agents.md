@@ -1,4 +1,4 @@
-The user wants to initialize the agent system for a customer project. This command scaffolds the full agent folder structure, validates Linear integration, and generates a MASTER-AGENT pre-populated with roadmap data from Linear if available.
+The user wants to initialize the agent system for a customer project. This command scaffolds the root agent structure (MASTER + ROADMAP only), validates Linear integration, and generates the initial agent tree.
 
 ## Workspace layout
 
@@ -69,19 +69,16 @@ Do not proceed without a working Linear connection.
 
 ## Step 2: Scaffold the agent folder structure
 
-Create the following directory tree at the project root. The customer's agent files live in a subfolder of `agent/` named after `{{ORG_NAME_SLUG}}`:
+Create only the root-level directories. Leaf agent directories (code/, test/, infra/, deploy/) are created on demand when those agents are added.
 
 ```
 agent/
   {{ORG_NAME_SLUG}}/
     MASTER-AGENT-{{ORG_NAME_UPPER}}.md
-    code/
-    test/
-    infra/
     plans/
 ```
 
-The `templates/` folder already exists at the project root (shipped with agent-industry). Do NOT recreate or overwrite it. If `templates/` already exists with template files, do NOT overwrite them. They are the source of truth.
+The `templates/` folder already exists at the project root (shipped with agent-industry). Do NOT recreate or overwrite it.
 
 ## Step 3: Read and apply the MASTER-AGENT template
 
@@ -92,8 +89,13 @@ Read the template at `templates/MASTER-AGENT-TEMPLATE.md`. Replace all placehold
 - `{{ORG_NAME_UPPER}}` -- the uppercased slug (hyphens preserved)
 - `{{LINEAR_PROJECT}}` -- the Linear group/project name
 - `{{DATE}}` -- today's date in YYYY-MM-DD format
-- `{{DOMAIN_OVERVIEW}}` -- leave as `[TO BE FILLED BY USER]` for now
-- `{{LINEAR_TICKETS_LIST}}` -- YAML list of ticket identifiers from Step 1, or `  - none` if empty
+- `{{AGENT_INDUSTRY_VERSION}}` -- read from `VERSION` file
+- `{{DOMAIN_OVERVIEW}}` -- leave as `[TO BE FILLED BY USER]`
+- `{{AGENT_HIERARCHY_DIAGRAM}}` -- generate a minimal diagram with just the MASTER and ROADMAP nodes
+- `{{FOLDER_STRUCTURE}}` -- show the current directory tree (just root + plans/)
+- `{{CHILD_REGISTRY}}` -- generate the roadmap entry only
+- `{{ROADMAP_PATH}}` -- `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md`
+- `{{ACTION_ROUTING}}` -- generate the base action routing table (roadmap-only for now)
 
 Write the result to `agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md`.
 
@@ -130,17 +132,15 @@ Write the result to `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
 
 ## Step 5: Stamp the agent-industry version
 
-1. Read the `VERSION` file at the agent-industry root to get the current version string (e.g. `1.0.0`)
+1. Read the `VERSION` file at the agent-industry root to get the current version string
 2. Replace `{{AGENT_INDUSTRY_VERSION}}` in the generated MASTER-AGENT and ROADMAP files with this version string
 3. Search the Linear project (from Step 1) for an issue whose title is exactly `agent-industry-version`
 4. If it exists, update its description with the current version using `update_issue`
 5. If it does NOT exist, create it:
    - Title: `agent-industry-version`
-   - Description: the version string (e.g. `1.0.0`)
+   - Description: the version string
    - Use `create_issue` with the same `teamId` as the other issues in this project
    - After creation, immediately set its state to "Done" using `update_issue_state` -- this is a metadata card, not a task
-
-This card is the remote version anchor. When `/update-roadmap` runs, it compares the local `VERSION` file against this card's description to detect drift.
 
 ## Step 6: Update the MASTER-AGENT with the roadmap reference
 
@@ -148,25 +148,33 @@ Go back to the generated MASTER-AGENT file and fill in the roadmap section's `li
 
 ## Step 7: Write factory state file
 
-Write `.factory-state.json` at the workspace root with the customer identity and initial agent flags. This file is gitignored and persists state across `/mayday` invocations so the system doesn't re-discover everything each time.
+Read the template at `templates/factory-state.json.example` for the schema reference. Write `.factory-state.json` at the workspace root with the customer identity and initial agent tree:
 
 ```json
 {
+  "version": "2.0.0",
   "org_name": "{{ORG_NAME}}",
-  "org_name_slug": "{{org_name_slug}}",
+  "org_name_slug": "{{ORG_NAME_SLUG}}",
   "org_name_upper": "{{ORG_NAME_UPPER}}",
   "linear_project": "{{LINEAR_PROJECT}}",
-  "agent_root": "agent/{{org_name_slug}}",
+  "agent_root": "agent/{{ORG_NAME_SLUG}}",
   "initialized_at": "{{DATE}}",
-  "agents": {
-    "master": true,
-    "roadmap": true,
-    "code": false,
-    "test": false,
-    "infra": false,
-    "deploy": false
-  },
-  "repos": []
+  "repos": [],
+  "tree": {
+    "id": "master",
+    "type": "master",
+    "scope": "full",
+    "path": "agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md",
+    "children": [
+      {
+        "id": "roadmap",
+        "type": "roadmap",
+        "scope": "full",
+        "path": "agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md",
+        "children": []
+      }
+    ]
+  }
 }
 ```
 
@@ -180,9 +188,6 @@ Print a summary:
 Agent system initialized for {{org_name}}:
 
   agent/{{org_name_slug}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md     -- orchestrator (entry point)
-  agent/{{org_name_slug}}/code/                                  -- run /create-code-agent to populate
-  agent/{{org_name_slug}}/test/                                  -- run /create-test-agent to populate (requires code agent)
-  agent/{{org_name_slug}}/infra/                                 -- run /create-infra-agent to populate
   agent/{{org_name_slug}}/plans/ROADMAP-...                      -- populated from Linear (N issues)
   templates/                                                     -- reusable templates
 
@@ -190,9 +195,10 @@ Agent system initialized for {{org_name}}:
 
 Next steps:
 1. Fill in the "Domain Overview" section in the MASTER-AGENT
-2. Run /create-code-agent to generate the code agent
-3. Run /create-infra-agent to generate the infra agent
-4. Run /update-roadmap any time to sync with Linear
+2. For large projects: create sub-masters first (/mayday > sub-master) to organize by domain
+3. Create code agents (/mayday > code) -- attach to MASTER directly or to a sub-master
+4. Create infra agents (/mayday > infra)
+5. Run /update-roadmap any time to sync with Linear
 ```
 
 ## Important rules
@@ -201,3 +207,5 @@ Next steps:
 - The templates in `templates/` are the source of truth. The command only reads and fills them.
 - All generated files must include the Linear Card Policy section.
 - All generated files must include Document Maintenance metadata blocks.
+- Do NOT create empty leaf agent directories (code/, test/, infra/, deploy/). These are created on demand when the user creates agents.
+- The factory state uses the v2 tree schema (see `templates/factory-state.json.example`).

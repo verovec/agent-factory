@@ -1,10 +1,14 @@
 # Agent Industry
 
-Portable agent system for AI-assisted development. Scaffolds scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by a master agent, backed by Linear.
+Portable agent system for AI-assisted development. Scaffolds a hierarchical tree of scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by master and sub-master agents, backed by Linear.
 
 ## Entry Point
 
-`/mayday` is the only command. It presents a menu for all operations: initialize workspace, create agents, sync roadmap, create Linear cards, check version.
+`/mayday` is the only command. It presents a menu for all operations: initialize workspace, create agents (including sub-masters for domain partitioning), sync roadmap, create Linear cards, check version.
+
+## Architecture
+
+Agents form a recursive tree. The MASTER-AGENT is the root. SUB-MASTER agents orchestrate subtrees for domains, services, or modules. Leaf agents (code, test, infra, deploy) can be scoped to specific parts of the codebase. Depth is unlimited.
 
 ## Project Structure
 
@@ -19,8 +23,9 @@ This repo is cloned once per workspace. It IS the workspace root. Project repos 
   rules/agent-system.md              -- always-on behavioral rules
 templates/                           -- agent templates (source of truth)
 templates/mcp.json.example           -- MCP config template (committed)
+templates/factory-state.json.example -- state file schema reference
 repos/                               -- project repos (gitignored)
-agent/<workspace-slug>/              -- generated per workspace (committed)
+agent/<workspace-slug>/              -- generated per workspace (committed), hierarchical tree
 .factory-state.json                  -- persisted workspace state (gitignored, created by init)
 VERSION                              -- local version anchor
 ```

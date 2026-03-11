@@ -1,17 +1,18 @@
-# DEPLOY-AGENT: {{ORG_NAME}}
+# DEPLOY-AGENT: {{SCOPE_NAME}} ({{ORG_NAME}})
 
 ```
 CREATED: {{DATE}}
 LAST_UPDATED: {{DATE}}
 VERSION: 1.0.0
 AGENT_TYPE: deploy
-SCOPE: Production deployment lifecycle, environment promotion, rollback, and release tracking for {{ORG_NAME}}
-MASTER: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
+SCOPE: {{SCOPE_DESCRIPTION}}
+SCOPE_PATHS: {{SCOPE_PATHS}}
+PARENT: {{PARENT_PATH}}
 ```
 
 ## Linear Card Policy
 
-Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md` > "Linear Card Rules".
+Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `{{ROADMAP_PATH}}` > "Linear Card Rules".
 
 ## CRITICAL WARNING
 
@@ -30,7 +31,7 @@ THIS DOCUMENT MUST BE UPDATED WHEN:
 
 ## Purpose
 
-This agent owns the production deployment lifecycle across all services. It does NOT own service configuration (that belongs to per-service INFRA-AGENTs) or infrastructure provisioning (that belongs to shared platform agents). It owns:
+This agent owns the production deployment lifecycle within its scope. It does NOT own service configuration (that belongs to INFRA-AGENTs) or infrastructure provisioning. It owns:
 
 - **When** and **in what order** services move between environments
 - What gates must pass before promotion
@@ -86,15 +87,21 @@ blocking_issues: []
 
 ---
 
+## Scope Boundary
+
+This agent covers: {{SCOPE_DESCRIPTION}}
+
+Paths: {{SCOPE_PATHS}}
+
+If a task falls outside this scope, delegate to the parent (`{{PARENT_PATH}}`), which will route it to the correct sibling agent.
+
 ## Cross-References
 
 ```yaml
-master_agent: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
-roadmap: agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
-infra_agents:
-  - [TO BE FILLED - paths to per-service infra agents]
-shared_platform:
-  - [TO BE FILLED - paths to shared platform agents]
+parent: {{PARENT_PATH}}
+siblings: {{SIBLING_REFS}}
+infra_agents: {{INFRA_AGENT_REFS}}
+roadmap: {{ROADMAP_PATH}}
 ```
 
 ## Document Maintenance
