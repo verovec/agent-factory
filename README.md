@@ -29,8 +29,7 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
 | Option | Action | What it does |
 |--------|--------|-------------|
 | init | Initialize a new workspace | Validates Linear + Context7, scaffolds agent tree, populates roadmap, creates version card |
-| code | Create a Code Agent | Parses the codebase, generates the CODE-AGENT, updates the master |
-| test | Create a Test Agent | Analyzes test landscape, generates the TEST-AGENT for test strategy, conventions, and code longevity (requires code agent) |
+| code | Create a Code Agent | Parses the codebase, generates the CODE-AGENT and its companion TEST-AGENT, updates the master |
 | infra | Create an Infrastructure Agent | Parses infrastructure, generates the INFRA-AGENT, updates the master |
 | deploy | Create a Deploy Agent | Reads infra agents and template, generates the DEPLOY-AGENT with promotion pipeline and rollback procedures |
 | update | Update agents and sync Linear | Re-scans repos, regenerates stale agents, syncs roadmap and version with Linear |

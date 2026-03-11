@@ -1,19 +1,4 @@
-First, do you understand well the codebase and its existing test setup? Ask me any question you have.
-
-If everything seems to be okay for you, follow this procedure to create a TEST-AGENT for the project.
-
-## Prerequisites
-
-The CODE-AGENT must already exist. The test agent depends on the code agent's architecture analysis to identify critical paths and understand the codebase's patterns. If `agents.code = false` in `.factory-state.json`, tell the user to create the code agent first via `/mayday`.
-
-## Step 0: Identify the MASTER-AGENT
-
-1. Look for `agent/*/MASTER-AGENT-*.md` files in the project root
-2. If exactly one exists, use it. If multiple exist, ask the user which domain this test agent belongs to.
-3. Read the MASTER-AGENT to understand the domain name, folder structure, and existing agents
-4. Extract `{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, and `{{ORG_NAME_UPPER}}` from the MASTER-AGENT metadata
-
-If no MASTER-AGENT exists, tell the user to run `/init-agents` first.
+This procedure is called automatically by `create-code-agent.md` after the CODE-AGENT is generated. It is never run standalone from the menu. The code agent's codebase analysis and the MASTER-AGENT metadata (`{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, `{{ORG_NAME_UPPER}}`) are already available from the parent procedure.
 
 ## Step 1: Read the CODE-AGENT
 

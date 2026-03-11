@@ -56,7 +56,11 @@ Before creating or updating any Linear card, you MUST read the roadmap agent fir
 
 ## 8. Testing Patterns
 
+The TEST-AGENT is the authority on all testing conventions, patterns, and requirements. This section contains a brief summary for quick reference -- the test agent file is the source of truth.
+
 {{TESTING}}
+
+For full test conventions, critical path coverage map, mocking strategy, and test modification policy, read: `agent/{{ORG_NAME_SLUG}}/test/TEST-AGENT-{{ORG_NAME_UPPER}}.md`
 
 ---
 
@@ -81,16 +85,16 @@ infra_agent: agent/{{ORG_NAME_SLUG}}/infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md
 roadmap: agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
 ```
 
-## Test Delegation
+## Test Agent Integration
 
-When implementing a feature or function that touches a critical path (authentication, data integrity, payment, core business logic, public API contracts), read the TEST-AGENT before writing code. The test agent defines:
+The TEST-AGENT is the code agent's companion. When writing or modifying code, you MUST read the test agent and follow its directives:
 
-- Which test patterns and conventions to follow
-- What level of testing is required (unit, integration, e2e)
-- How to structure test files and assertions
-- Whether the tests need pipeline integration
+1. **Before implementing any feature or fix**: check the test agent's critical path coverage map (section 4). If the code you are writing touches a critical path, the test agent dictates what tests are required.
+2. **When writing tests**: follow the test agent's conventions exactly -- file naming, directory structure, assertion style, setup/teardown patterns. Every test in the project must be indistinguishable in style.
+3. **When modifying existing tests**: the test agent's modification policy (section 7) applies. Warn before changing or deleting any test. Justify the change against the contract the test protects.
+4. **After writing tests**: ask whether they should run in the CI/CD pipeline. The test agent's pipeline checklist (section 8) has the decision tree. Coordinate with the infra agent if pipeline integration is needed.
 
-Follow the test agent's conventions exactly. Test consistency across the project is non-negotiable.
+The test agent is the authority on code longevity. It decides what gets tested, how, and warns when safety nets are weakened.
 
 ## Document Maintenance
 

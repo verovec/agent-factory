@@ -44,7 +44,7 @@ If `initialized = true`:
    - Check if `agent/{{ORG_NAME_SLUG}}/code/CODE-AGENT-{{ORG_NAME_UPPER}}.md` exists. Set `has_code_agent` accordingly.
    - Check if `agent/{{ORG_NAME_SLUG}}/infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md` exists. Set `has_infra_agent` accordingly.
    - Check if `agent/{{ORG_NAME_SLUG}}/deploy/DEPLOY-AGENT-{{ORG_NAME_UPPER}}.md` exists. Set `has_deploy_agent` accordingly.
-   - Check if `agent/{{ORG_NAME_SLUG}}/test/TEST-AGENT-{{ORG_NAME_UPPER}}.md` exists. Set `has_test_agent` accordingly.
+   - Check if `agent/{{ORG_NAME_SLUG}}/test/TEST-AGENT-{{ORG_NAME_UPPER}}.md` exists. Set `has_test_agent` accordingly. (Not shown in menu -- the test agent is created automatically with the code agent.)
    - Check if `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md` exists. Set `has_roadmap` accordingly.
 3. If any flag differs from what `.factory-state.json` recorded, update `.factory-state.json` with the corrected values.
 
@@ -118,10 +118,10 @@ Print status first:
 Customer:  {{ORG_NAME}}
 Linear:    {{LINEAR_PROJECT}}
 Repos:     repos/customer-repo, repos/api
-Agents:    [x] Roadmap  [ ] Code  [ ] Infra  [ ] Deploy  [ ] Test
+Agents:    [x] Roadmap  [ ] Code  [ ] Infra  [ ] Deploy
 ```
 
-Use checkmarks `[x]` for existing agents, empty `[ ]` for missing ones.
+Use checkmarks `[x]` for existing agents, empty `[ ]` for missing ones. The test agent is not shown in the status line -- it is created automatically with the code agent and lives as its companion.
 
 Then build the menu. Put the most useful action FIRST based on what's missing:
 
@@ -129,14 +129,12 @@ Then build the menu. Put the most useful action FIRST based on what's missing:
 - If `has_infra_agent = false` and repos exist: put "Create an Infrastructure Agent" high
 - If both code and infra agents are missing, suggest code first (it informs infra)
 - If `has_deploy_agent = false` and infra agent exists: put "Create a Deploy Agent" after infra
-- If `has_test_agent = false` and code agent exists: put "Create a Test Agent" after code (test agent requires code agent)
 
 Always include all options but order them by relevance:
 
 | id | label |
 |----|-------|
 | code | Create a Code Agent (missing) |
-| test | Create a Test Agent (missing) |
 | infra | Create an Infrastructure Agent (missing) |
 | deploy | Create a Deploy Agent (missing) |
 | update | Update agents and sync Linear |
@@ -158,7 +156,7 @@ Print status:
 Customer:  {{ORG_NAME}}
 Linear:    {{LINEAR_PROJECT}}
 Repos:     repos/customer-repo, repos/api
-Agents:    [x] Roadmap  [x] Code  [x] Infra  [x] Deploy  [x] Test
+Agents:    [x] Roadmap  [x] Code  [x] Infra  [x] Deploy
 ```
 
 Put version check and sync first since the system is complete and the most likely need is staying up to date:
@@ -171,7 +169,6 @@ Put version check and sync first since the system is complete and the most likel
 | feature | New feature card |
 | bug | Bug / fix card |
 | code | Regenerate Code Agent |
-| test | Regenerate Test Agent |
 | infra | Regenerate Infrastructure Agent |
 | deploy | Regenerate Deploy Agent |
 | init | Re-initialize customer |
@@ -200,23 +197,6 @@ If multiple repos exist in `repos/`, use AskQuestion to ask which repo to analyz
 If only one repo exists, use it automatically.
 
 Then read `.cursor/procedures/create-code-agent.md` and execute every step, targeting the selected repo.
-
-## Option: test
-
-**Prerequisite check**: If `has_code_agent = false`, stop and tell the user: "The Test Agent requires the Code Agent. Create it first via /mayday." Do not proceed.
-
-**Now** scan the repos in `repos/` for test-related indicators (test directories, test configuration files like jest.config, pytest.ini, vitest.config, .mocharc, coverage configuration, test fixtures, test utilities) to build a test landscape summary per repo.
-
-If multiple repos exist in `repos/`, use AskQuestion to ask which repo to analyze. List them with detected test framework:
-
-| id | label |
-|----|-------|
-| customer-repo | repos/customer-repo (Jest / React Testing Library) |
-| api | repos/api (pytest) |
-
-If only one repo exists, use it automatically.
-
-Then read `.cursor/procedures/create-test-agent.md` and execute every step, targeting the selected repo.
 
 ## Option: infra
 

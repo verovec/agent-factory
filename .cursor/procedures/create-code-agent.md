@@ -51,9 +51,15 @@ Read `.factory-state.json` at the workspace root. Set `agents.code` to `true`. W
 
 If `.factory-state.json` does not exist, skip this step silently.
 
-## Step 6: Confirm
+## Step 6: Generate the TEST-AGENT
 
-Tell the user what was created and what the MASTER-AGENT now contains.
+The test agent is the code agent's companion. It is always created alongside the code agent -- never separately. Read `.cursor/procedures/create-test-agent.md` and execute every step now, using the same repo and codebase analysis from Steps 1-3. The test agent procedure will use the code agent you just generated as its primary input.
+
+After the test agent procedure completes, update `.factory-state.json` to set `agents.test` to `true` (the test agent procedure also does this, but confirm it is set).
+
+## Step 7: Confirm
+
+Tell the user what was created (both the code agent and test agent) and what the MASTER-AGENT now contains.
 
 ## Agent structure rules
 
