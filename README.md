@@ -1,4 +1,4 @@
-# Agent Industry
+# Agent Factory
 
 A portable agent system for AI-assisted development. Five scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by a master agent, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
 
