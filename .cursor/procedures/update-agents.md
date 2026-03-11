@@ -14,11 +14,13 @@ This is a post-work housekeeping operation. It reads git changes, recent convers
 2. Read the current state of all agent files:
    - MASTER-AGENT(s)
    - CODE-AGENT(s) if they exist
+   - TEST-AGENT(s) if they exist
    - INFRA-AGENT(s) if they exist
    - ROADMAP(s)
 3. Cross-reference changed files against agent scopes:
    - Terraform / infrastructure changes -> INFRA-AGENT
    - Application code changes -> CODE-AGENT
+   - Test files, test configuration, coverage changes -> TEST-AGENT
    - Deployment topology, secrets, env vars, health checks -> INFRA-AGENT
    - New Linear tickets or state changes -> ROADMAP
 

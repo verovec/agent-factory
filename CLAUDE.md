@@ -1,6 +1,6 @@
 # Agent Industry
 
-Portable agent system for AI-assisted development. Scaffolds scoped knowledge files (code, infrastructure, deploy, roadmap) orchestrated by a master agent, backed by Linear.
+Portable agent system for AI-assisted development. Scaffolds scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by a master agent, backed by Linear.
 
 ## Entry Point
 
@@ -41,4 +41,4 @@ VERSION                              -- local version anchor
 A template lives at `templates/mcp.json.example` (committed). The live config is `.cursor/mcp.json` (gitignored). On first run, `/mayday` copies the template, asks for the Linear API key, and writes the config. After that, restart MCP servers and re-run `/mayday`.
 
 - **Linear** (required) -- roadmap sync, card management, version tracking (`LINEAR_API_KEY`)
-- **Context7** (recommended) -- up-to-date library documentation, required for code/infra agent creation
+- **Context7** (recommended) -- up-to-date library documentation, required for code/infra/test agent creation

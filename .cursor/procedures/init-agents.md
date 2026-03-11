@@ -76,6 +76,7 @@ agent/
   {{ORG_NAME_SLUG}}/
     MASTER-AGENT-{{ORG_NAME_UPPER}}.md
     code/
+    test/
     infra/
     plans/
 ```
@@ -161,6 +162,7 @@ Write `.factory-state.json` at the workspace root with the customer identity and
     "master": true,
     "roadmap": true,
     "code": false,
+    "test": false,
     "infra": false,
     "deploy": false
   },
@@ -179,6 +181,7 @@ Agent system initialized for {{org_name}}:
 
   agent/{{org_name_slug}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md     -- orchestrator (entry point)
   agent/{{org_name_slug}}/code/                                  -- run /create-code-agent to populate
+  agent/{{org_name_slug}}/test/                                  -- run /create-test-agent to populate (requires code agent)
   agent/{{org_name_slug}}/infra/                                 -- run /create-infra-agent to populate
   agent/{{org_name_slug}}/plans/ROADMAP-...                      -- populated from Linear (N issues)
   templates/                                                     -- reusable templates

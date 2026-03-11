@@ -27,16 +27,20 @@ graph TD
 
     subgraph agents ["agent/{{ORG_NAME_SLUG}}/ -- Domain-scoped agents"]
         CODE["CODE-AGENT<br/><i>code/</i><br/>Application source code"]
+        TEST["TEST-AGENT<br/><i>test/</i><br/>Test strategy, conventions,<br/>code longevity"]
         INFRA["INFRA-AGENT<br/><i>infra/</i><br/>Infrastructure, deployment,<br/>CI/CD, secrets"]
         DEPLOY["DEPLOY-AGENT<br/><i>deploy/</i><br/>Environment promotion,<br/>rollback, release tracking"]
         ROADMAP["ROADMAP<br/><i>plans/</i><br/>Linear tickets,<br/>dependency graph,<br/>implementation steps"]
     end
 
     MASTER -->|"code tasks"| CODE
+    MASTER -->|"test tasks"| TEST
     MASTER -->|"infra tasks"| INFRA
     MASTER -->|"deploy tasks"| DEPLOY
     MASTER -->|"planning tasks"| ROADMAP
 
+    CODE -->|"test requests<br/>(critical paths)"| TEST
+    TEST -->|"pipeline config"| INFRA
     ROADMAP -->|"implementation<br/>context"| CODE
     ROADMAP -->|"implementation<br/>context"| INFRA
     DEPLOY -->|"service config"| INFRA
@@ -50,12 +54,14 @@ agent/
   {{ORG_NAME_SLUG}}/
     MASTER-AGENT-{{ORG_NAME_UPPER}}.md           <-- you are here
     code/CODE-AGENT-{{ORG_NAME_UPPER}}.md        <-- application source code
+    test/TEST-AGENT-{{ORG_NAME_UPPER}}.md        <-- test strategy & code longevity
     infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md      <-- infrastructure & deployment
     deploy/DEPLOY-AGENT-{{ORG_NAME_UPPER}}.md    <-- production deployment lifecycle
     plans/ROADMAP-{{ORG_NAME_UPPER}}.md          <-- implementation plan
 templates/
   MASTER-AGENT-TEMPLATE.md
   CODE-AGENT-TEMPLATE.md
+  TEST-AGENT-TEMPLATE.md
   INFRA-AGENT-TEMPLATE.md
   DEPLOY-AGENT-TEMPLATE.md
   ROADMAP-TEMPLATE.md
@@ -90,7 +96,37 @@ update_when:
   - Docker build changes
 ```
 
-### 2. Infrastructure -- INFRA-AGENT-{{ORG_NAME_UPPER}}
+### 2. Testing -- TEST-AGENT-{{ORG_NAME_UPPER}}
+
+```yaml
+path: agent/{{ORG_NAME_SLUG}}/test/TEST-AGENT-{{ORG_NAME_UPPER}}.md
+scope: Test strategy, test authoring conventions, critical path coverage, test lifecycle, and code longevity
+owns:
+  - Test framework configuration and tooling
+  - Test structure and naming conventions (project-wide law)
+  - Test categories and strategy (unit, integration, e2e)
+  - Critical path coverage map and requirements
+  - Mocking and test data patterns
+  - Test modification policy (warns on test edits/deletes)
+  - CI/CD test pipeline integration decisions
+  - Code longevity monitoring (deprecation, dependency health, refactoring safety)
+
+depends_on:
+  - Code agent for architecture analysis and critical path identification
+  - Infra agent for CI/CD pipeline stage configuration
+
+update_when:
+  - Test framework, runner, or assertion library changes
+  - New test patterns or conventions adopted
+  - Coverage thresholds change
+  - CI/CD test pipeline stages change
+  - New test categories introduced
+  - Test data management strategy changes
+  - Critical path coverage changes
+  - Existing tests modified or deleted
+```
+
+### 3. Infrastructure -- INFRA-AGENT-{{ORG_NAME_UPPER}}
 
 ```yaml
 path: agent/{{ORG_NAME_SLUG}}/infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md
@@ -117,7 +153,7 @@ update_when:
   - Docker entrypoint or CMD changes
 ```
 
-### 3. Roadmap -- ROADMAP-{{ORG_NAME_UPPER}}
+### 4. Roadmap -- ROADMAP-{{ORG_NAME_UPPER}}
 
 ```yaml
 path: agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
@@ -141,7 +177,7 @@ update_when:
   - Linear card rules or formatting standards change
 ```
 
-### 4. Deploy -- DEPLOY-AGENT-{{ORG_NAME_UPPER}}
+### 5. Deploy -- DEPLOY-AGENT-{{ORG_NAME_UPPER}}
 
 ```yaml
 path: agent/{{ORG_NAME_SLUG}}/deploy/DEPLOY-AGENT-{{ORG_NAME_UPPER}}.md
@@ -183,19 +219,22 @@ Use this table to determine which agent(s) to read for common tasks:
 
 | Action | Read |
 |--------|------|
-| Add a new feature or module | Code |
-| Add a new API endpoint | Code |
-| Fix a bug in application logic | Code |
+| Add a new feature or module | Code + Test (if critical path) |
+| Add a new API endpoint | Code + Test |
+| Fix a bug in application logic | Code + Test (regression test) |
+| Write or update tests | Test |
+| Modify or delete existing tests | Test (modification policy applies) |
+| Check test coverage for critical paths | Test |
 | Change infrastructure code (Terraform, etc.) | Infra |
 | Deploy to development | Infra |
 | Run database migrations | Infra |
-| Change CI/CD pipeline | Infra + Roadmap |
+| Change CI/CD pipeline | Infra + Test (pipeline integration) |
 | Add monitoring or alerting | Infra |
 | Promote to staging or production | Deploy |
 | Roll back a deployment | Deploy |
-| Check production readiness | Deploy + Roadmap |
+| Check production readiness | Deploy + Roadmap + Test |
 | Track a release (changelog, Linear cards) | Deploy + Roadmap |
-| Implement a roadmap phase | Roadmap + relevant scope (Code and/or Infra) |
+| Implement a roadmap phase | Roadmap + relevant scope (Code, Test, and/or Infra) |
 | Create or update a Linear card | Roadmap first, then the relevant scope |
 
 ## Update Protocol

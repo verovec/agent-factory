@@ -76,9 +76,21 @@ Before creating or updating any Linear card, you MUST read the roadmap agent fir
 
 ```yaml
 master_agent: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
+test_agent: agent/{{ORG_NAME_SLUG}}/test/TEST-AGENT-{{ORG_NAME_UPPER}}.md
 infra_agent: agent/{{ORG_NAME_SLUG}}/infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md
 roadmap: agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
 ```
+
+## Test Delegation
+
+When implementing a feature or function that touches a critical path (authentication, data integrity, payment, core business logic, public API contracts), read the TEST-AGENT before writing code. The test agent defines:
+
+- Which test patterns and conventions to follow
+- What level of testing is required (unit, integration, e2e)
+- How to structure test files and assertions
+- Whether the tests need pipeline integration
+
+Follow the test agent's conventions exactly. Test consistency across the project is non-negotiable.
 
 ## Document Maintenance
 

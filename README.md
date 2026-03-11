@@ -1,6 +1,6 @@
 # Agent Industry
 
-A portable agent system for AI-assisted development. Four scoped knowledge files (code, infrastructure, deploy, roadmap) orchestrated by a master agent, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
+A portable agent system for AI-assisted development. Five scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by a master agent, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
 
 ## Workspace layout
 
@@ -30,6 +30,7 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
 |--------|--------|-------------|
 | init | Initialize a new workspace | Validates Linear + Context7, scaffolds agent tree, populates roadmap, creates version card |
 | code | Create a Code Agent | Parses the codebase, generates the CODE-AGENT, updates the master |
+| test | Create a Test Agent | Analyzes test landscape, generates the TEST-AGENT for test strategy, conventions, and code longevity (requires code agent) |
 | infra | Create an Infrastructure Agent | Parses infrastructure, generates the INFRA-AGENT, updates the master |
 | deploy | Create a Deploy Agent | Reads infra agents and template, generates the DEPLOY-AGENT with promotion pipeline and rollback procedures |
 | update | Update agents and sync Linear | Re-scans repos, regenerates stale agents, syncs roadmap and version with Linear |
@@ -46,6 +47,7 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
   procedures/                        -- procedure files (logic, not exposed as commands)
     init-agents.md
     create-code-agent.md
+    create-test-agent.md
     create-infra-agent.md
     update-roadmap.md
 .claude/commands/mayday.md           -- delegates to .cursor/commands/
@@ -55,6 +57,7 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
 templates/                           -- agent templates (source of truth)
   MASTER-AGENT-TEMPLATE.md
   CODE-AGENT-TEMPLATE.md
+  TEST-AGENT-TEMPLATE.md
   INFRA-AGENT-TEMPLATE.md
   DEPLOY-AGENT-TEMPLATE.md
   ROADMAP-TEMPLATE.md
