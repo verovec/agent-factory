@@ -135,9 +135,9 @@ Read the MASTER-AGENT file. Update:
 1. The `linear_tickets` list under the Roadmap entry in the Agent Registry to reflect the current set
 2. `LAST_UPDATED` to today's date
 
-## Step 6: Warn about sibling agents
+## Step 6: Warn about affected agents
 
-After completing the roadmap update, ALWAYS display this warning:
+After completing the roadmap update, walk the agent tree from `.factory-state.json` and identify all code and infra agents. Display a warning listing each one:
 
 ```
 ------------------------------------------------------------
@@ -145,16 +145,24 @@ WARNING: The roadmap has been updated with changes from Linear.
 
 If any of the following are true, the corresponding agent
 files may now be out of date and should be reviewed:
+```
 
-  CODE-AGENT (agent/{{ORG_NAME_SLUG}}/code/CODE-AGENT-{{ORG_NAME_UPPER}}.md)
+For each code agent in the tree:
+```
+  CODE-AGENT (<scope>) -- <path>
     -> Review if: new features were added, existing features changed
        scope, or completed tickets introduced new code patterns
+```
 
-  INFRA-AGENT (agent/{{ORG_NAME_SLUG}}/infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md)
+For each infra agent in the tree:
+```
+  INFRA-AGENT (<scope>) -- <path>
     -> Review if: infrastructure tickets changed state, new infra
        tickets were added, or deployment topology was affected
+```
 
-Run /create-code-agent or /create-infra-agent to regenerate
-them from scratch, or manually update the relevant sections.
+```
+Run /mayday to regenerate agents from scratch, or manually
+update the relevant sections.
 ------------------------------------------------------------
 ```
