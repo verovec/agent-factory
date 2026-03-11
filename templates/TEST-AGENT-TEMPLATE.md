@@ -1,17 +1,18 @@
-# TEST-AGENT: {{ORG_NAME}}
+# TEST-AGENT: {{SCOPE_NAME}} ({{ORG_NAME}})
 
 ```
 CREATED: {{DATE}}
 LAST_UPDATED: {{DATE}}
 VERSION: 1.0.0
 AGENT_TYPE: test
-SCOPE: Test strategy, test authoring, test lifecycle, and code longevity for {{ORG_NAME}}
-MASTER: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
+SCOPE: {{SCOPE_DESCRIPTION}}
+SCOPE_PATHS: {{SCOPE_PATHS}}
+PARENT: {{PARENT_PATH}}
 ```
 
 ## Linear Card Policy
 
-Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md` > "Linear Card Rules".
+Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `{{ROADMAP_PATH}}` > "Linear Card Rules".
 
 ## CRITICAL WARNING
 
@@ -29,18 +30,18 @@ THIS DOCUMENT MUST BE UPDATED WHEN:
 
 ## Purpose
 
-This agent owns the test strategy, test quality, and code longevity for the project. It does NOT own application logic (that belongs to the CODE-AGENT) or CI/CD pipeline configuration (that belongs to the INFRA-AGENT). It owns:
+This agent owns the test strategy, test quality, and code longevity for its scope within the project. It does NOT own application logic (that belongs to the sibling CODE-AGENT) or CI/CD pipeline configuration (that belongs to the INFRA-AGENT). It owns:
 
 - **What** gets tested and at what level (unit, integration, e2e)
-- **How** tests are written -- conventions, patterns, and structure that remain consistent across the entire codebase
+- **How** tests are written -- conventions, patterns, and structure that remain consistent across the scope
 - **When** tests are required -- which features and functions are critical enough to warrant test coverage
 - **Why** tests exist -- each test protects a specific behavior; tests without clear purpose are liabilities
 
-The code agent delegates to this agent when a feature or function has fundamental impact and must be protected by tests. This agent decides the test approach, writes the tests, and ensures they follow project-wide conventions.
+The sibling code agent delegates to this agent when a feature or function has fundamental impact and must be protected by tests. This agent decides the test approach, writes the tests, and ensures they follow project-wide conventions.
 
 ## Guiding Principles
 
-1. **Consistency over cleverness** -- every test in the project follows the same structure, naming, and assertion style. A developer reading any test file should immediately recognize the patterns.
+1. **Consistency over cleverness** -- every test in the scope follows the same structure, naming, and assertion style. A developer reading any test file should immediately recognize the patterns.
 2. **Protect critical paths** -- not everything needs a test. Focus on functions and features where breakage has cascading impact: data integrity, authentication, payment flows, core business logic, public API contracts.
 3. **Tests are documentation** -- a well-written test suite describes what the system does. Test names and structure should read as a specification.
 4. **Stability over coverage metrics** -- a flaky test is worse than no test. Every test must be deterministic and independent.
@@ -124,13 +125,21 @@ If pipeline integration is chosen, coordinate with the INFRA-AGENT for pipeline 
 
 ---
 
+## Scope Boundary
+
+This agent covers: {{SCOPE_DESCRIPTION}}
+
+Paths: {{SCOPE_PATHS}}
+
+If a task falls outside this scope, delegate to the parent (`{{PARENT_PATH}}`), which will route it to the correct sibling agent.
+
 ## Cross-References
 
 ```yaml
-master_agent: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
-code_agent: agent/{{ORG_NAME_SLUG}}/code/CODE-AGENT-{{ORG_NAME_UPPER}}.md
-infra_agent: agent/{{ORG_NAME_SLUG}}/infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md
-roadmap: agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
+parent: {{PARENT_PATH}}
+siblings: {{SIBLING_REFS}}
+code_agent: {{CODE_AGENT_PATH}}
+roadmap: {{ROADMAP_PATH}}
 ```
 
 ## Document Maintenance

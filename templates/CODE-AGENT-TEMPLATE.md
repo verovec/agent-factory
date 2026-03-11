@@ -1,12 +1,20 @@
-# CODE-AGENT: {{ORG_NAME}}
+# CODE-AGENT: {{SCOPE_NAME}} ({{ORG_NAME}})
 
-> Last updated: {{DATE}}
->
-> WARNING: This document MUST be updated whenever a new integration, model, service, API endpoint, schema, dependency, or architectural pattern is added or modified. Failure to do so will cause agents working on this codebase to produce incorrect code.
+```
+CREATED: {{DATE}}
+LAST_UPDATED: {{DATE}}
+VERSION: 1.0.0
+AGENT_TYPE: code
+SCOPE: {{SCOPE_DESCRIPTION}}
+SCOPE_PATHS: {{SCOPE_PATHS}}
+PARENT: {{PARENT_PATH}}
+```
+
+> WARNING: This document MUST be updated whenever a new integration, model, service, API endpoint, schema, dependency, or architectural pattern is added or modified within this agent's scope. Failure to do so will cause agents working on this codebase to produce incorrect code.
 
 ## Linear Card Policy
 
-Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md` > "Linear Card Rules".
+Before creating or updating any Linear card, you MUST read the roadmap agent first. The roadmap owns all card rules (structure, formatting, tone, defaults, MCP usage, confidentiality). Defer to: `{{ROADMAP_PATH}}` > "Linear Card Rules".
 
 ---
 
@@ -56,11 +64,7 @@ Before creating or updating any Linear card, you MUST read the roadmap agent fir
 
 ## 8. Testing Patterns
 
-The TEST-AGENT is the authority on all testing conventions, patterns, and requirements. This section contains a brief summary for quick reference -- the test agent file is the source of truth.
-
 {{TESTING}}
-
-For full test conventions, critical path coverage map, mocking strategy, and test modification policy, read: `agent/{{ORG_NAME_SLUG}}/test/TEST-AGENT-{{ORG_NAME_UPPER}}.md`
 
 ---
 
@@ -79,22 +83,30 @@ For full test conventions, critical path coverage map, mocking strategy, and tes
 ## Cross-References
 
 ```yaml
-master_agent: agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md
-test_agent: agent/{{ORG_NAME_SLUG}}/test/TEST-AGENT-{{ORG_NAME_UPPER}}.md
-infra_agent: agent/{{ORG_NAME_SLUG}}/infra/INFRA-AGENT-{{ORG_NAME_UPPER}}.md
-roadmap: agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
+parent: {{PARENT_PATH}}
+siblings: {{SIBLING_REFS}}
+test_agent: {{TEST_AGENT_PATH}}
+roadmap: {{ROADMAP_PATH}}
 ```
 
-## Test Agent Integration
+## Test Delegation
 
-The TEST-AGENT is the code agent's companion. When writing or modifying code, you MUST read the test agent and follow its directives:
+When implementing a feature or function that touches a critical path (authentication, data integrity, payment, core business logic, public API contracts), read the sibling TEST-AGENT before writing code. The test agent defines:
 
-1. **Before implementing any feature or fix**: check the test agent's critical path coverage map (section 4). If the code you are writing touches a critical path, the test agent dictates what tests are required.
-2. **When writing tests**: follow the test agent's conventions exactly -- file naming, directory structure, assertion style, setup/teardown patterns. Every test in the project must be indistinguishable in style.
-3. **When modifying existing tests**: the test agent's modification policy (section 7) applies. Warn before changing or deleting any test. Justify the change against the contract the test protects.
-4. **After writing tests**: ask whether they should run in the CI/CD pipeline. The test agent's pipeline checklist (section 8) has the decision tree. Coordinate with the infra agent if pipeline integration is needed.
+- Which test patterns and conventions to follow
+- What level of testing is required (unit, integration, e2e)
+- How to structure test files and assertions
+- Whether the tests need pipeline integration
 
-The test agent is the authority on code longevity. It decides what gets tested, how, and warns when safety nets are weakened.
+Follow the test agent's conventions exactly. Test consistency across the project is non-negotiable.
+
+## Scope Boundary
+
+This agent covers: {{SCOPE_DESCRIPTION}}
+
+Paths: {{SCOPE_PATHS}}
+
+If a task falls outside this scope, delegate to the parent (`{{PARENT_PATH}}`), which will route it to the correct sibling agent.
 
 ## Document Maintenance
 
@@ -105,13 +117,13 @@ DOCUMENT_OWNER: {{ORG_NAME}} Team
 AUTHORS: [TO BE FILLED]
 
 UPDATE_TRIGGERS:
-- New models, services, or API endpoints
-- New external service integrations
-- Schema or type system changes
+- New models, services, or API endpoints within scope
+- New external service integrations within scope
+- Schema or type system changes within scope
 - Dependency version changes
 - Docker build changes
 - New design patterns introduced
-- Architecture changes
+- Architecture changes within scope
 ```
 
 END_OF_DOCUMENT
