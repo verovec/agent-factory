@@ -12,7 +12,9 @@ If `.factory-state.json` does not exist, tell the user to run `/mayday` > init f
 
 ## Step 1: Walk the tree -- select parent
 
-Present the agent tree to the user and ask where this sub-master should be placed. Use AskQuestion with one option per valid parent (any node of type `master` or `sub-master`).
+Present the agent tree to the user and ask where this sub-master should be placed. Use AskQuestion with one option per valid parent.
+
+Valid parents are any node: `master`, `sub-master`, `application`, or `platform`. Any agent can have children.
 
 Build the options by walking the tree recursively. Indent child nodes to show hierarchy:
 
@@ -20,8 +22,7 @@ Build the options by walking the tree recursively. Indent child nodes to show hi
 |----|-------|
 | master | MASTER-AGENT (root) |
 | frontend | SUB-MASTER: Frontend (under root) |
-
-Only `master` and `sub-master` nodes are valid parents. Leaf agents cannot be parents.
+| full-app | APPLICATION-AGENT (full) -- organize sub-scopes under it |
 
 Store the selected parent node's `id` and `path`.
 
@@ -107,6 +108,7 @@ Read `.factory-state.json`. Find the parent node in the `tree` by matching its `
 {
   "id": "{{SCOPE_NAME_SLUG}}",
   "type": "sub-master",
+  "category": "orchestration",
   "scope": "{{SCOPE_DESCRIPTION}}",
   "scope_paths": ["path1", "path2"],
   "path": "<path to new sub-master file>",
@@ -131,6 +133,5 @@ Sub-master created: <path to new sub-master file>
 ## Rules
 
 - Sub-masters do NOT contain implementation details -- they are orchestrators only
-- A sub-master can be placed under the MASTER or under another SUB-MASTER (unlimited depth)
-- Leaf agents (code, test, infra, deploy) cannot be parents
+- A sub-master can be placed under any agent: MASTER, SUB-MASTER, APPLICATION, or PLATFORM (unlimited depth)
 - The roadmap and its Linear card rules live at the root level and are inherited by all agents in the tree

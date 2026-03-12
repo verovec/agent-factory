@@ -35,7 +35,13 @@ When a task falls outside this agent's scope, delegate upward to the parent: `{{
 
 ## Child Registry
 
-Each child agent owns a specific scope within this sub-master's domain. When performing an action, consult the relevant child agent(s) below. If the work crosses into a sibling sub-master's scope, delegate upward to the parent.
+Each child agent owns a specific scope within this sub-master's domain. Children are organized by category:
+
+- **application** -- unified code + test: source code knowledge AND testing strategy
+- **platform** -- unified infra + deploy + specialist: infrastructure, deployment, AND cloud provider expertise
+- **planning** (roadmap) -- backlog and dependency tracking
+
+When performing an action, consult the relevant child agent(s) below. If the work crosses into a sibling sub-master's scope, delegate upward to the parent.
 
 {{CHILD_REGISTRY}}
 

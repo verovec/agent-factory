@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "4.0.0",
   "org_name": "Workspace Name",
   "org_name_slug": "workspace-name",
   "org_name_upper": "WORKSPACE-NAME",
@@ -12,15 +12,62 @@
   "tree": {
     "id": "master",
     "type": "master",
+    "category": "orchestration",
     "scope": "full",
     "path": "agent/workspace-name/MASTER-AGENT-WORKSPACE-NAME.md",
     "children": [
       {
         "id": "roadmap",
         "type": "roadmap",
+        "category": "planning",
         "scope": "full",
         "path": "agent/workspace-name/plans/ROADMAP-WORKSPACE-NAME.md",
         "children": []
+      },
+      {
+        "id": "full-app",
+        "type": "application",
+        "category": "application",
+        "scope": "Full application source code and tests",
+        "path": "agent/workspace-name/application/APPLICATION-AGENT-WORKSPACE-NAME.md",
+        "children": []
+      },
+      {
+        "id": "full-platform",
+        "type": "platform",
+        "category": "platform",
+        "scope": "Full infrastructure, deployment, and provider knowledge",
+        "specialists": ["aws", "gcp", "azure"],
+        "path": "agent/workspace-name/platform/PLATFORM-AGENT-WORKSPACE-NAME.md",
+        "children": [
+          {
+            "id": "aws-platform",
+            "type": "platform",
+            "category": "platform",
+            "scope": "AWS-specific infrastructure and deployment",
+            "specialists": ["aws"],
+            "path": "agent/workspace-name/platform/aws/PLATFORM-AGENT-AWS.md",
+            "children": []
+          },
+          {
+            "id": "gcp-platform",
+            "type": "platform",
+            "category": "platform",
+            "scope": "GCP-specific infrastructure and deployment",
+            "specialists": ["gcp"],
+            "path": "agent/workspace-name/platform/gcp/PLATFORM-AGENT-GCP.md",
+            "children": []
+          },
+          {
+            "id": "azure-platform",
+            "type": "platform",
+            "category": "platform",
+            "scope": "Azure-specific infrastructure and deployment",
+            "specialists": ["azure"],
+            "path": "agent/workspace-name/platform/azure/PLATFORM-AGENT-AZURE.md",
+            "children": []
+          }
+        ]
       }
     ]
   }

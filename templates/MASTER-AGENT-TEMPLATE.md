@@ -22,7 +22,12 @@ Import this file when starting any task related to {{ORG_NAME}} (code, infra, de
 
 ## Agent Hierarchy
 
-The agent tree below shows every agent in this workspace. Leaf agents (code, test, infra, deploy) own specific scopes. Sub-masters orchestrate subtrees for a domain, service, or module. The tree can be nested to any depth.
+The agent tree below shows every agent in this workspace, grouped by category. Any agent can have children for finer-grained context. The tree can be nested to any depth.
+
+Categories:
+- **application** -- unified code + test. Can have scoped sub-agents (e.g. auth, payments) for tighter context.
+- **platform** -- unified infra + deploy + specialist. Can have scoped sub-agents (e.g. AWS-only, K8s-only) for focused provider knowledge.
+- **planning** (roadmap) -- backlog, dependency tracking, Linear integration
 
 {{AGENT_HIERARCHY_DIAGRAM}}
 
@@ -34,7 +39,7 @@ The agent tree below shows every agent in this workspace. Leaf agents (code, tes
 
 ## Child Registry
 
-Each child entry below is either a leaf agent (owns a specific scope) or a sub-master (orchestrates a subtree). When performing an action, consult the relevant child(ren). If a sub-master exists for the domain, delegate to it -- it will route to the correct leaf agent within its subtree.
+Each child entry below is an agent owning a specific scope. Any agent can have its own children for finer-grained context. When performing an action, consult the relevant child(ren). If a sub-master or scoped agent exists for the domain, delegate to it -- it will route to the correct sub-agent within its subtree.
 
 {{CHILD_REGISTRY}}
 

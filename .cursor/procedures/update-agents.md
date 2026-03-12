@@ -5,7 +5,7 @@ This is a post-work housekeeping operation. It reads git changes, recent convers
 ## Step 0: Load the agent tree
 
 1. Read `.factory-state.json` to get the `tree` and org metadata
-2. Walk the tree recursively to build a flat list of all agent nodes with their types, scopes, scope_paths, and file paths
+2. Walk the tree recursively to build a flat list of all agent nodes with their types, categories, scopes, scope_paths, and file paths
 3. Detect the current git branch in each repo under `repos/`. If a branch name matches a Linear identifier pattern (e.g. `INF-42-...`), note the ticket(s) involved
 
 ## Step 1: Gather what changed
@@ -24,15 +24,15 @@ Affected agents:
 
   MASTER-AGENT (root)
     SUB-MASTER: Frontend
-      CODE-AGENT (auth) -- 3 files changed in src/auth/
-      TEST-AGENT (auth) -- 1 test file changed
-    CODE-AGENT (full backend) -- 5 files changed
+      APPLICATION-AGENT (auth) -- 3 files changed in src/auth/, 1 test file changed
+    APPLICATION-AGENT (full backend) -- 5 files changed
 
   Not affected:
-    INFRA-AGENT
-    DEPLOY-AGENT
+    PLATFORM-AGENT
     ROADMAP (synced separately)
 ```
+
+For application agents, code changes and test changes are both in scope since they live in the same file. For platform agents, infra changes, deploy changes, and provider-related changes are all in scope.
 
 ## Step 2: Update agent files
 
@@ -48,6 +48,8 @@ For each affected agent (leaf agents first, then sub-masters, then master -- bot
 - Do not rewrite prose or restructure sections that are still accurate
 - Do not remove information unless it is provably obsolete
 - Preserve `CREATED`, `DOCUMENT_OWNER`, `AUTHORS` fields as-is
+- For application agents: code changes may require updating both Part I (codebase) and Part II (testing) sections. If a new feature was added, check if critical path coverage (section 14) needs updating.
+- For platform agents: infra changes may affect both Part I (infrastructure) and Part II (deployment) sections. If provider-specific config changed, update the relevant Part III specialist section. Check `last_docs_refresh` -- if the specialist section is older than 30 days, flag it as stale.
 - For sub-masters: update their Child Registry if any child's scope or status changed
 - For the master: update the top-level Child Registry and hierarchy diagram if the tree structure changed
 
@@ -56,21 +58,20 @@ Show the user a summary of what will change before writing:
 ```
 Agent updates:
 
-  CODE-AGENT (auth) -- agent/acme/frontend/code/CODE-AGENT-AUTH.md
+  APPLICATION-AGENT (auth) -- agent/acme/frontend/application/APPLICATION-AGENT-AUTH.md
     - Architecture: update to reflect new auth middleware
     - API Layer: add new /auth/refresh endpoint
+    - Critical Path Coverage: add auth refresh to coverage map
 
-  CODE-AGENT (full backend) -- agent/acme/code/CODE-AGENT-ACME.md
+  APPLICATION-AGENT (full backend) -- agent/acme/application/APPLICATION-AGENT-ACME.md
     - Data Models: update User schema
     - Known Gotchas: add note about migration order
 
   SUB-MASTER: Frontend -- agent/acme/frontend/SUB-MASTER-FRONTEND.md
-    - Child Registry: update CODE-AGENT (auth) status
+    - Child Registry: update APPLICATION-AGENT (auth) status
 
   No changes needed:
-    - INFRA-AGENT
-    - DEPLOY-AGENT
-    - TEST-AGENT (auth)
+    - PLATFORM-AGENT
     - MASTER-AGENT
 ```
 
@@ -111,7 +112,7 @@ After Linear cards are updated, run the roadmap sync procedure (`.cursor/procedu
 Print a single summary:
 
 ```
-Updated: CODE-AGENT (auth), CODE-AGENT (full backend), SUB-MASTER: Frontend
+Updated: APPLICATION-AGENT (auth), APPLICATION-AGENT (full backend), SUB-MASTER: Frontend
 Linear:  TEAM-42 -> Done, TEAM-38 -> In Progress
 Roadmap synced.
 ```

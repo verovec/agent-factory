@@ -162,7 +162,7 @@ Read the template at `templates/factory-state.json.example` for the schema refer
 
 ```json
 {
-  "version": "2.0.0",
+  "version": "4.0.0",
   "org_name": "{{ORG_NAME}}",
   "org_name_slug": "{{ORG_NAME_SLUG}}",
   "org_name_upper": "{{ORG_NAME_UPPER}}",
@@ -175,12 +175,14 @@ Read the template at `templates/factory-state.json.example` for the schema refer
   "tree": {
     "id": "master",
     "type": "master",
+    "category": "orchestration",
     "scope": "full",
     "path": "agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md",
     "children": [
       {
         "id": "roadmap",
         "type": "roadmap",
+        "category": "planning",
         "scope": "full",
         "path": "agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md",
         "children": []
@@ -208,8 +210,8 @@ Agent system initialized for {{org_name}}:
 Next steps:
 1. Fill in the "Domain Overview" section in the MASTER-AGENT
 2. For large projects: create sub-masters first (/mayday > sub-master) to organize by domain
-3. Create code agents (/mayday > code) -- attach to MASTER directly or to a sub-master
-4. Create infra agents (/mayday > infra)
+3. Create application agents (/mayday > application) -- code + test in one agent
+4. Create platform agents (/mayday > platform) -- infra + deploy + specialist in one agent
 5. Run /update-roadmap any time to sync with Linear
 ```
 
@@ -219,5 +221,5 @@ Next steps:
 - The templates in `templates/` are the source of truth. The command only reads and fills them.
 - All generated files must include the Linear Card Policy section.
 - All generated files must include Document Maintenance metadata blocks.
-- Do NOT create empty leaf agent directories (code/, test/, infra/, deploy/). These are created on demand when the user creates agents.
+- Do NOT create empty leaf agent directories (application/, platform/). These are created on demand when the user creates agents.
 - The factory state uses the v2 tree schema (see `templates/factory-state.json.example`).

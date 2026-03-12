@@ -1,14 +1,19 @@
 # Agent Industry
 
-Portable agent system for AI-assisted development. Scaffolds a hierarchical tree of scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by master and sub-master agents, backed by Linear.
+Portable agent system for AI-assisted development. Scaffolds a hierarchical tree of scoped knowledge files orchestrated by master and sub-master agents, backed by Linear. Logically linked concerns are unified: code + test live in a single application agent, infra + deploy + specialist knowledge live in a single platform agent.
 
 ## Entry Point
 
-`/mayday` is the only command. It presents a menu for all operations: initialize workspace, create agents (including sub-masters for domain partitioning), sync roadmap, create Linear cards, check version.
+`/mayday` is the only command. It presents a menu for all operations: initialize workspace, create agents (application, platform, sub-masters), sync roadmap, create Linear cards, check version.
 
 ## Architecture
 
-Agents form a recursive tree. The MASTER-AGENT is the root. SUB-MASTER agents orchestrate subtrees for domains, services, or modules. Leaf agents (code, test, infra, deploy) can be scoped to specific parts of the codebase. Depth is unlimited.
+Agents form a recursive tree with unlimited depth. Any agent can have children. The MASTER-AGENT is the root. SUB-MASTER agents orchestrate subtrees for domains, services, or modules. Leaf agents are grouped by category:
+
+- **application** -- unified code + test: source code knowledge AND testing strategy in one file. Can spawn scoped sub-agents (e.g. auth, payments) for tighter context and better code quality.
+- **platform** -- unified infra + deploy + specialist: infrastructure, deployment procedures, AND cloud provider expertise in one file. Can spawn scoped sub-agents (e.g. AWS-only, K8s-only) for focused provider knowledge.
+- **planning** (roadmap) -- Linear integration, backlog, dependency tracking
+- **orchestration** (master, sub-master) -- routing and delegation, no implementation
 
 ## Project Structure
 
@@ -23,7 +28,7 @@ This repo is cloned once per workspace. It IS the workspace root. Project repos 
   rules/agent-system.md              -- always-on behavioral rules
 templates/                           -- agent templates (source of truth)
 templates/mcp.json.example           -- MCP config template (committed)
-templates/factory-state.json.example -- state file schema reference
+templates/factory-state.json.example -- state file schema reference (v4)
 repos/                               -- project repos (gitignored)
 agent/<workspace-slug>/              -- generated per workspace (committed), hierarchical tree
 .factory-state.json                  -- persisted workspace state (gitignored, created by init)
@@ -49,4 +54,4 @@ VERSION                              -- local version anchor
 A template lives at `templates/mcp.json.example` (committed). The live config is `.cursor/mcp.json` (gitignored). On first run, `/mayday` copies the template, asks for the Linear API key, and writes the config. After that, restart MCP servers and re-run `/mayday`.
 
 - **Linear** (required) -- roadmap sync, card management, version tracking (`LINEAR_API_KEY`)
-- **Context7** (recommended) -- up-to-date library documentation, required for code/infra/test agent creation
+- **Context7** (recommended) -- up-to-date library documentation, required for agent creation

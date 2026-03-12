@@ -1,32 +1,32 @@
 # Agent Factory
 
-A portable agent system for AI-assisted development. A hierarchical tree of scoped knowledge files (code, test, infrastructure, deploy, roadmap) orchestrated by master and sub-master agents, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
+A portable agent system for AI-assisted development. A hierarchical tree of scoped knowledge files orchestrated by master and sub-master agents, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
 
 ## Architecture
 
-Agents form a recursive tree with unlimited depth:
+Agents form a recursive tree with unlimited depth. Any agent can have children for finer-grained context and better output quality. Logically linked concerns are unified into single files:
 
 - **MASTER-AGENT** -- single root entry point per workspace, orchestrates the full hierarchy
 - **SUB-MASTER** -- intermediate orchestrator for a domain, service, or module (e.g., "Frontend", "API", "Payments")
-- **Leaf agents** (CODE, TEST, INFRA, DEPLOY) -- scoped to a user-defined boundary (a service, a module, or the full repo)
+- **APPLICATION-AGENT** -- unified code + test: source code knowledge AND testing strategy in one file
+- **PLATFORM-AGENT** -- unified infra + deploy + specialist: infrastructure, deployment procedures, AND cloud provider expertise in one file
 - **ROADMAP** -- lives at the root, owns all Linear card rules
 
 ```
 MASTER
   +-- ROADMAP
+  +-- APPLICATION-AGENT (full) -- code + test
+  |     +-- APPLICATION-AGENT (auth) -- scoped sub-agent
+  |     +-- APPLICATION-AGENT (payments) -- scoped sub-agent
+  +-- PLATFORM-AGENT (full) -- infra + deploy + AWS + K8s
+  |     +-- PLATFORM-AGENT (aws) -- AWS specialist sub-agent
+  |     +-- PLATFORM-AGENT (k8s) -- K8s specialist sub-agent
   +-- SUB-MASTER: Frontend
-  |     +-- CODE-AGENT (auth)
-  |     +-- CODE-AGENT (dashboard)
-  |     +-- TEST-AGENT (auth)
-  |     +-- TEST-AGENT (dashboard)
-  +-- SUB-MASTER: Backend
-  |     +-- CODE-AGENT (full)
-  |     +-- TEST-AGENT (full)
-  |     +-- INFRA-AGENT
-  +-- DEPLOY-AGENT
+        +-- APPLICATION-AGENT (ui-components)
+        +-- PLATFORM-AGENT (cdn)
 ```
 
-Each agent is an expert in its domain. Sub-masters delegate downward to their children and upward to their parent for cross-cutting concerns. The tree can be nested as deep as needed.
+The application agent knows the codebase and knows how to test it. The platform agent knows the infrastructure, knows how to deploy it, and has embedded specialist knowledge for the cloud providers in use. Sub-agents carry narrower slices of knowledge so each agent operates with only the context it needs.
 
 ## Workspace layout
 
@@ -56,10 +56,8 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
 |--------|--------|-------------|
 | init | Initialize a new workspace | Validates Linear + Context7, scaffolds MASTER + ROADMAP, creates version card |
 | submaster | Create a Sub-Master | Adds an orchestration layer for a domain/service/module |
-| code | Create a Code Agent | Parses the codebase within scope, generates CODE-AGENT under chosen parent |
-| test | Create a Test Agent | Analyzes test landscape within scope, generates TEST-AGENT paired with a code agent |
-| infra | Create an Infrastructure Agent | Parses infrastructure within scope, generates INFRA-AGENT |
-| deploy | Create a Deploy Agent | Reads infra agents, generates DEPLOY-AGENT with promotion pipeline |
+| application | Create an Application Agent | Parses codebase and test landscape, generates unified code + test agent |
+| platform | Create a Platform Agent | Parses infra, deployment, and cloud providers, generates unified infra + deploy + specialist agent |
 | update | Update agents and sync Linear | Tree-aware update: walks the hierarchy, updates only agents whose scope intersects with changes |
 | sync | Sync Roadmap with Linear | Checks version, pulls latest from Linear, diffs and updates the roadmap |
 | feature | New feature card | Suggests next card from roadmap or drafts a new feature card in Linear |
@@ -73,12 +71,14 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
   commands/mayday.md                 -- the single slash command (source of truth)
   procedures/                        -- procedure files (logic, not exposed as commands)
     init-agents.md
-    create-code-agent.md
-    create-test-agent.md
-    create-infra-agent.md
+    create-application-agent.md
+    create-platform-agent.md
     create-sub-master.md
     update-agents.md
     update-roadmap.md
+    create-feature-card.md
+    create-bug-card.md
+    check-version.md
 .claude/commands/mayday.md           -- delegates to .cursor/commands/
 .agent/
   workflows/mayday.md                -- delegates to .cursor/commands/
@@ -86,10 +86,8 @@ Run `/mayday` to get started. It is the only slash command exposed across all ID
 templates/                           -- agent templates (source of truth)
   MASTER-AGENT-TEMPLATE.md
   SUB-MASTER-AGENT-TEMPLATE.md
-  CODE-AGENT-TEMPLATE.md
-  TEST-AGENT-TEMPLATE.md
-  INFRA-AGENT-TEMPLATE.md
-  DEPLOY-AGENT-TEMPLATE.md
+  APPLICATION-AGENT-TEMPLATE.md
+  PLATFORM-AGENT-TEMPLATE.md
   ROADMAP-TEMPLATE.md
   factory-state.json.example
   mcp.json.example
@@ -103,6 +101,16 @@ AGENTS.md                            -- Antigravity/universal project context
 ```
 
 The Cursor procedure files in `.cursor/procedures/` are the single source of truth for all logic. Claude Code and Antigravity delegate to them.
+
+## Agent categories
+
+Agents are grouped by concern:
+
+**Application** (code + test unified) -- the agent knows the codebase architecture, data models, API layer, design patterns, and testing strategy all in one file. Part I covers the codebase, Part II covers testing. When implementing a feature, the agent sees both the code patterns and the test conventions without switching files.
+
+**Platform** (infra + deploy + specialist unified) -- the agent knows the deployment topology, infrastructure as code, CI/CD pipelines, deployment procedures, rollback strategies, and cloud provider expertise all in one file. Part I covers infrastructure, Part II covers deployment, Part III covers specialist knowledge for each cloud provider.
+
+**Sub-agents** -- any agent can spawn scoped children. A full-scope application agent can have an auth sub-agent and a payments sub-agent. A full-scope platform agent can have an AWS sub-agent and a K8s sub-agent. The parent delegates to children when a task matches their narrower scope. This keeps context small and output quality high.
 
 ## Version management
 
@@ -181,8 +189,14 @@ Then:
 2. Create a Linear group (project) for the workspace in your team
 3. Configure the Linear and Context7 MCP servers if not already done (see setup above)
 4. Run `/mayday` and pick `init`
-5. For large projects: create sub-masters first to organize by domain, then create scoped agents under them
-6. For small projects: create agents directly under the master
+5. Create an application agent (`/mayday > application`) for your codebase -- this covers code + tests
+6. Create a platform agent (`/mayday > platform`) for your infrastructure -- this covers infra + deploy + cloud providers
+7. For large projects: create sub-masters first to organize by domain, then create scoped agents under them
+8. For focused expertise: create sub-agents under existing agents to narrow the context (e.g. an AWS sub-agent under a full platform agent)
+
+## Migrating from older versions
+
+Workspaces created with earlier versions (v1/v2/v3) auto-migrate when you run `/mayday`. Individual agent files (CODE-AGENT, TEST-AGENT, INFRA-AGENT, DEPLOY-AGENT) are preserved as legacy nodes in the tree. You can regenerate them at any time using the `application` or `platform` options to consolidate into the unified format.
 
 ## Credits
 
