@@ -18,9 +18,10 @@ MASTER
   +-- APPLICATION-AGENT (full) -- code + test
   |     +-- APPLICATION-AGENT (auth) -- scoped sub-agent
   |     +-- APPLICATION-AGENT (payments) -- scoped sub-agent
-  +-- PLATFORM-AGENT (full) -- infra + deploy + AWS + K8s
+  +-- PLATFORM-AGENT (full) -- infra + deploy + AWS + GCP + Azure
   |     +-- PLATFORM-AGENT (aws) -- AWS specialist sub-agent
-  |     +-- PLATFORM-AGENT (k8s) -- K8s specialist sub-agent
+  |     +-- PLATFORM-AGENT (gcp) -- GCP specialist sub-agent
+  |     +-- PLATFORM-AGENT (azure) -- Azure specialist sub-agent
   +-- SUB-MASTER: Frontend
         +-- APPLICATION-AGENT (ui-components)
         +-- PLATFORM-AGENT (cdn)
@@ -110,7 +111,7 @@ Agents are grouped by concern:
 
 **Platform** (infra + deploy + specialist unified) -- the agent knows the deployment topology, infrastructure as code, CI/CD pipelines, deployment procedures, rollback strategies, and cloud provider expertise all in one file. Part I covers infrastructure, Part II covers deployment, Part III covers specialist knowledge for each cloud provider.
 
-**Sub-agents** -- any agent can spawn scoped children. A full-scope application agent can have an auth sub-agent and a payments sub-agent. A full-scope platform agent can have an AWS sub-agent and a K8s sub-agent. The parent delegates to children when a task matches their narrower scope. This keeps context small and output quality high.
+**Sub-agents** -- any agent can spawn scoped children. A full-scope application agent can have an auth sub-agent and a payments sub-agent. A full-scope platform agent can have an AWS sub-agent, a GCP sub-agent, and an Azure sub-agent. The parent delegates to children when a task matches their narrower scope. This keeps context small and output quality high.
 
 ## Version management
 
