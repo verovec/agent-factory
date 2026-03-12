@@ -1,10 +1,10 @@
-The user wants to check the agent-industry version. The MASTER-AGENT metadata and `LINEAR_PROJECT` are already available from the mayday scan.
+The user wants to check the agent-industry version. The MASTER-AGENT metadata, `LINEAR_TEAM`, `LINEAR_PROJECT`, and `linear_team_id` are already available from the mayday scan.
 
 ## Step 1: Gather versions
 
 1. Read `VERSION` file
 2. Read `AGENT_INDUSTRY_VERSION` from the MASTER-AGENT metadata
-3. Find the Linear project matching `LINEAR_PROJECT`, search for issue titled `agent-industry-version`
+3. Using `linear_team_id` from `.factory-state.json`, find the Linear project matching `LINEAR_PROJECT`, search for issue titled `agent-industry-version`
 
 ## Step 2: Display
 

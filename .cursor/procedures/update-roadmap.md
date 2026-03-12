@@ -54,11 +54,12 @@ Agent Industry version updated in Linear: X.Y.Z -> A.B.C
 
 ## Step 2: Fetch current Linear state
 
-1. Call `projects` on the Linear MCP server to list all projects
-2. Find the project matching `LINEAR_PROJECT` from the roadmap metadata (case-insensitive)
-3. If not found, stop and tell the user: "Linear project '{{LINEAR_PROJECT}}' no longer exists. Update the LINEAR_PROJECT field in the MASTER-AGENT or create the project in Linear."
-4. Call `project_issues` with the `projectId` to fetch all current issues
-5. For each issue, store: identifier, title, state, priority, description
+1. Read `linear_team_id` from `.factory-state.json` (or extract `LINEAR_TEAM` from the MASTER-AGENT metadata). This scopes the project lookup to the correct team.
+2. Call `projects` on the Linear MCP server to list all projects
+3. Find the project matching `LINEAR_PROJECT` from the roadmap metadata (case-insensitive)
+4. If not found, stop and tell the user: "Linear project '{{LINEAR_PROJECT}}' no longer exists. Update the LINEAR_PROJECT field in the MASTER-AGENT or create the project in Linear."
+5. Call `project_issues` with the `projectId` to fetch all current issues
+6. For each issue, store: identifier, title, state, priority, description
 
 ## Step 3: Diff against the existing roadmap
 

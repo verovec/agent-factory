@@ -1,4 +1,4 @@
-The user wants to create a bug card. The MASTER-AGENT metadata (`{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, `{{ORG_NAME_UPPER}}`, `LINEAR_PROJECT`) and agent flags are already available from the mayday scan.
+The user wants to create a bug card. The MASTER-AGENT metadata (`{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, `{{ORG_NAME_UPPER}}`, `LINEAR_TEAM`, `LINEAR_PROJECT`) and agent flags are already available from the mayday scan. The `linear_team_id` from `.factory-state.json` is the `teamId` for all Linear API calls.
 
 ## Step 0: Agent gate
 
@@ -33,6 +33,6 @@ Draft the card. Opening paragraph: observed vs expected. AC: the fixed state. To
 
 Ask: "Create this card in Linear?"
 
-If yes: `create_issue` with the correct `teamId`, then `update_issue_state` to "Todo". Print: `Created: TEAM-123 -- Card title`.
+If yes: `create_issue` with `linear_team_id` as the `teamId`, then `update_issue_state` to "Todo". Print: `Created: TEAM-123 -- Card title`.
 
 Ask: "Sync the roadmap to include this card?" If yes: read and execute `.cursor/procedures/update-roadmap.md`.

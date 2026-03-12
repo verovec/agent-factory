@@ -1,4 +1,4 @@
-The user wants to create or work on a feature card. The MASTER-AGENT metadata (`{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, `{{ORG_NAME_UPPER}}`, `LINEAR_PROJECT`) and agent flags are already available from the mayday scan.
+The user wants to create or work on a feature card. The MASTER-AGENT metadata (`{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, `{{ORG_NAME_UPPER}}`, `LINEAR_TEAM`, `LINEAR_PROJECT`) and agent flags are already available from the mayday scan. The `linear_team_id` from `.factory-state.json` is the `teamId` for all Linear API calls.
 
 ## Step 0: Agent gate
 
@@ -32,7 +32,7 @@ Use AskQuestion:
 
 **If `existing`**: Ask: "Card identifier? (e.g. INF-22)". Fetch via `issue` tool. Show summary. Ask: "Start working on this card?" If yes, go to Step 4.
 
-**If `new`**: Ask: "Describe the feature." Draft the card (opening paragraph, acceptance criteria, todo). Show only the draft. Ask: "Create this card in Linear?" If yes: `create_issue` with the correct `teamId`, then `update_issue_state` to "Todo". Print: `Created: TEAM-123 -- Card title`. Ask: "Sync the roadmap to include this card?" If yes: read and execute `.cursor/procedures/update-roadmap.md`. Then go to Step 4 with the new card.
+**If `new`**: Ask: "Describe the feature." Draft the card (opening paragraph, acceptance criteria, todo). Show only the draft. Ask: "Create this card in Linear?" If yes: `create_issue` with `linear_team_id` as the `teamId`, then `update_issue_state` to "Todo". Print: `Created: TEAM-123 -- Card title`. Ask: "Sync the roadmap to include this card?" If yes: read and execute `.cursor/procedures/update-roadmap.md`. Then go to Step 4 with the new card.
 
 ## Step 4: Start working
 

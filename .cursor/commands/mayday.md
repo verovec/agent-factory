@@ -21,11 +21,11 @@ Before anything else, check that required MCP servers are reachable. The project
 
 Only proceed to 0a if MCP checks pass.
 
-### 0a. Customer initialization
+### 0a. Workspace initialization
 
 1. Check if `.factory-state.json` exists at the workspace root
 2. If found, read it. Check the `version` field:
-   - If `version` is `"2.0.0"` or higher: extract all fields normally. The `tree` field contains the full agent hierarchy.
+   - If `version` is `"2.0.0"` or higher: extract all fields normally, including `linear_team` and `linear_team_id` if present. The `tree` field contains the full agent hierarchy.
    - If `version` is missing or below `"2.0.0"` (v1 format with flat `agents` map): **auto-migrate** (see "V1 Migration" below). Set `initialized = true` after migration.
 3. If NOT found, fall back: look for `agent/*/MASTER-AGENT-*.md` at the workspace root. If found, read the first one and extract metadata, then auto-generate `.factory-state.json` with the v2 tree schema. Set `initialized = true`.
 4. If neither exists, set `initialized = false`.
@@ -97,9 +97,9 @@ Present:
 
 | id | label |
 |----|-------|
-| init | Initialize a new customer |
+| init | Initialize a new workspace |
 
-After the user picks `init`, before running the procedure, remind them: "Clone your customer's repo into `repos/` first if you haven't already."
+After the user picks `init`, before running the procedure, remind them: "Clone your project repo into `repos/` first if you haven't already."
 
 ### Case B: Nothing initialized, repos detected
 
@@ -109,7 +109,7 @@ Print a brief summary first:
 
 ```
 Detected repos:
-  repos/customer-repo
+  repos/my-project
   repos/other-repo
 ```
 
@@ -117,7 +117,7 @@ Then present:
 
 | id | label |
 |----|-------|
-| init | Initialize customer (recommended) |
+| init | Initialize workspace (recommended) |
 
 ### Case C: Initialized, tree is shallow (few agents)
 
@@ -126,9 +126,10 @@ Title: "Agent Factory -- {{ORG_NAME}}"
 Print the agent tree as an indented structure:
 
 ```
-Customer:  {{ORG_NAME}}
-Linear:    {{LINEAR_PROJECT}}
-Repos:     repos/customer-repo, repos/api
+Workspace: {{ORG_NAME}}
+Team:      {{LINEAR_TEAM}}
+Project:   {{LINEAR_PROJECT}}
+Repos:     repos/my-project, repos/api
 
 Agent tree:
   MASTER-AGENT
@@ -173,7 +174,7 @@ Always include all options but order them by relevance:
 | feature | New feature card |
 | bug | Bug / fix card |
 | version | Check version |
-| init | Re-initialize customer |
+| init | Re-initialize workspace |
 
 Tag actions with context hints: "(recommended)", "(missing under Frontend)", etc.
 
@@ -195,15 +196,15 @@ Print the full agent tree, then put maintenance actions first:
 | test | Add/regenerate a Test Agent |
 | infra | Add/regenerate an Infrastructure Agent |
 | deploy | Add/regenerate a Deploy Agent |
-| init | Re-initialize customer |
+| init | Re-initialize workspace |
 
 Wait for the user's selection. Then execute the matching option below.
 
 ## Option: init
 
 Ask the user:
-1. "Customer/organization name?"
-2. "Linear group (project) name?"
+1. "Workspace name?"
+2. "Linear project name?"
 
 Then read `.cursor/procedures/init-agents.md` and execute every step.
 
@@ -219,7 +220,7 @@ If multiple repos exist in `repos/`, use AskQuestion to ask which repo to analyz
 
 | id | label |
 |----|-------|
-| customer-repo | repos/customer-repo (Node.js / Next.js) |
+| my-project | repos/my-project (Node.js / Next.js) |
 | api | repos/api (Python / Django) |
 
 If only one repo exists, use it automatically.
@@ -236,7 +237,7 @@ If multiple repos exist in `repos/`, use AskQuestion to ask which repo to analyz
 
 | id | label |
 |----|-------|
-| customer-repo | repos/customer-repo (Jest / React Testing Library) |
+| my-project | repos/my-project (Jest / React Testing Library) |
 | api | repos/api (pytest) |
 
 If only one repo exists, use it automatically.
@@ -306,7 +307,7 @@ Then proceed:
 
 5. **If `next`**: Fetch the card from Linear using the `issue` tool. Show a summary (title, description excerpt, state, priority). Ask: "Start working on this card?" If yes, proceed to step 8.
 6. **If `existing`**: Ask: "Card identifier? (e.g. INF-22)". Fetch the card from Linear using the `issue` tool. Show a summary. Ask: "Start working on this card?" If yes, proceed to step 8.
-7. **If `new`**: Ask: "Describe the feature." Draft the card (opening paragraph, acceptance criteria, todo). Show only the draft, nothing else. Ask: "Create this card in Linear?" If yes: `create_issue` with the correct `teamId`, then `update_issue_state` to "Todo". Print: `Created: TEAM-123 -- Card title`. Ask: "Sync the roadmap to include this card?" If yes: run Option sync. Then proceed to step 8 with the newly created card.
+7. **If `new`**: Ask: "Describe the feature." Draft the card (opening paragraph, acceptance criteria, todo). Show only the draft, nothing else. Ask: "Create this card in Linear?" If yes: `create_issue` with `linear_team_id` as the `teamId`, then `update_issue_state` to "Todo". Print: `Created: TEAM-123 -- Card title`. Ask: "Sync the roadmap to include this card?" If yes: run Option sync. Then proceed to step 8 with the newly created card.
 8. **Working on a card**: Update the card state to "In Progress" using `update_issue_state` if it is not already. Walk the agent tree to find the agent(s) whose scope matches the card's domain (infer from title, description, and any path references). Read the relevant agent files. Print a summary of the card and the relevant agent context, then hand off to the user for implementation.
 
 ## Option: bug
@@ -335,7 +336,7 @@ Then proceed:
 
 5. Draft the card. Opening paragraph: observed vs expected. AC: the fixed state. Todos: investigation and fix steps. Show only the draft.
 6. Ask: "Create this card in Linear?"
-7. If yes: `create_issue` with the correct `teamId`, then `update_issue_state` to "Todo"
+7. If yes: `create_issue` with `linear_team_id` as the `teamId`, then `update_issue_state` to "Todo"
 8. Print: `Created: TEAM-123 -- Card title`
 9. Ask: "Sync the roadmap to include this card?"
 10. If yes: run Option sync

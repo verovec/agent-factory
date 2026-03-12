@@ -6,7 +6,7 @@ If everything seems to be okay for you, follow this procedure to create a SUB-MA
 
 1. Read `.factory-state.json` at the workspace root
 2. Extract the `tree` object -- this is the full agent hierarchy
-3. Extract `{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, `{{ORG_NAME_UPPER}}`, and `{{LINEAR_PROJECT}}`
+3. Extract `{{ORG_NAME}}`, `{{ORG_NAME_SLUG}}`, `{{ORG_NAME_UPPER}}`, `{{LINEAR_TEAM}}`, `{{LINEAR_TEAM_ID}}`, and `{{LINEAR_PROJECT}}`
 
 If `.factory-state.json` does not exist, tell the user to run `/mayday` > init first.
 

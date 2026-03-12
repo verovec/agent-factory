@@ -1,28 +1,28 @@
-The user wants to initialize the agent system for a customer project. This command scaffolds the root agent structure (MASTER + ROADMAP only), validates Linear integration, and generates the initial agent tree.
+The user wants to initialize the agent system for a new workspace. This command scaffolds the root agent structure (MASTER + ROADMAP only), validates Linear integration, auto-detects the Linear team, and generates the initial agent tree.
 
 ## Workspace layout
 
-This repo is cloned once per customer. The customer's repository is cloned INSIDE it. The IDE opens this folder as the workspace root so all commands, templates, and rules are detected.
+This repo is cloned once per workspace. Project repositories are cloned INSIDE it. The IDE opens this folder as the workspace root so all commands, templates, and rules are detected.
 
 ```
-~/projects/customer-name/            <-- agent-industry clone (workspace root)
+~/projects/workspace-name/            <-- agent-industry clone (workspace root)
   .cursor/commands/mayday.md         <-- detected by Cursor
   .claude/commands/mayday.md         <-- detected by Claude Code
   .agent/workflows/mayday.md         <-- detected by Antigravity
   templates/                         <-- agent templates
   agent/
-    customer-name/                   <-- generated per customer (named after org_name_slug)
-  repos/                             <-- customer repositories (gitignored)
-    customer-repo/
+    workspace-name/                  <-- generated per workspace (named after org_name_slug)
+  repos/                             <-- project repositories (gitignored)
+    my-project/
     other-repo/
 ```
 
-The `repos/` folder is gitignored. Nothing from the customer's code is committed to agent-industry. Nothing from agent-industry is committed to the customer's remote. The `agent/` folder is committed so agent files can be shared.
+The `repos/` folder is gitignored. Nothing from the project repos is committed to agent-industry. Nothing from agent-industry is committed to the project's remote. The `agent/` folder is committed so agent files can be shared.
 
 ## Parameters
 
-- `org_name` (required): The organization/customer name. Used for folder naming, metadata, and agent context.
-- `linear_group` (required): The Linear group (project) name in YOUR Linear workspace. One group per customer.
+- `org_name` (required): The workspace name. Used for folder naming, metadata, and agent context.
+- `linear_project` (required): The Linear project name for this workspace. One project per workspace, all under the same team.
 
 ## Step 0: Validate MCP prerequisites
 
@@ -40,7 +40,15 @@ Before anything else, verify that both required MCP servers are available and co
 2. Check that a `linear` entry (or an entry whose command/args reference `mcp-server-linear`) exists with a non-empty `LINEAR_API_KEY` that is not `YOUR_LINEAR_API_KEY`.
 3. Call `get_viewer` on the Linear MCP server to confirm the API key works. If it fails, stop and tell the user the key may be invalid.
 
-### 0b. Context7 MCP (recommended)
+### 0b. Auto-detect Linear team
+
+After `get_viewer` succeeds, extract the team(s) from the viewer response:
+
+1. If exactly one team exists, use it automatically. Store `linear_team` (name) and `linear_team_id` (UUID).
+2. If multiple teams exist, use AskQuestion to ask which team this workspace belongs to. List each team by name.
+3. If no teams exist, stop and tell the user to create a team in Linear first.
+
+### 0c. Context7 MCP (recommended)
 
 1. Check that `.cursor/mcp.json` contains a Context7 entry (server named `context7` or referencing `@upstash/context7-mcp` or `mcp.context7.com`). The template already includes Context7, so this should be present if the template was used.
 2. If missing, warn but do not block initialization:
@@ -54,17 +62,17 @@ Add to .cursor/mcp.json when ready:
 
 Do not proceed without a working Linear connection.
 
-## Step 1: Check if the Linear group/project already exists
+## Step 1: Check if the Linear project already exists
 
 1. Call `projects` on the Linear MCP server to list all projects
-2. Search for a project whose name matches `{{linear_group}}` (case-insensitive)
+2. Search for a project whose name matches `{{linear_project}}` (case-insensitive)
 3. If found:
    - Store the `projectId`
    - Call `project_issues` with that `projectId` to fetch all issues
    - Store the issues list (identifier, title, state, priority, description) -- this will feed the roadmap agent
-   - Tell the user: "Found Linear project '{{linear_group}}' with N issues. These will be used to populate the roadmap agent."
+   - Tell the user: "Found Linear project '{{linear_project}}' with N issues. These will be used to populate the roadmap agent."
 4. If NOT found:
-   - Tell the user: "No Linear project named '{{linear_group}}' found. The roadmap agent will be created with an empty backlog. You can populate it later by creating cards in Linear and re-running `/init-agents`."
+   - Tell the user: "No Linear project named '{{linear_project}}' found. The roadmap agent will be created with an empty backlog. You can populate it later by creating cards in Linear and re-running `/update-roadmap`."
    - Proceed with empty issues list
 
 ## Step 2: Scaffold the agent folder structure
@@ -87,7 +95,8 @@ Read the template at `templates/MASTER-AGENT-TEMPLATE.md`. Replace all placehold
 - `{{ORG_NAME}}` -- the org name as provided (title case)
 - `{{ORG_NAME_SLUG}}` -- the slugified org name
 - `{{ORG_NAME_UPPER}}` -- the uppercased slug (hyphens preserved)
-- `{{LINEAR_PROJECT}}` -- the Linear group/project name
+- `{{LINEAR_TEAM}}` -- the auto-detected Linear team name
+- `{{LINEAR_PROJECT}}` -- the Linear project name
 - `{{DATE}}` -- today's date in YYYY-MM-DD format
 - `{{AGENT_INDUSTRY_VERSION}}` -- read from `VERSION` file
 - `{{DOMAIN_OVERVIEW}}` -- leave as `[TO BE FILLED BY USER]`
@@ -106,7 +115,8 @@ Read the template at `templates/ROADMAP-TEMPLATE.md`. Replace all placeholders:
 - `{{ORG_NAME}}` -- the org name
 - `{{ORG_NAME_SLUG}}` -- the slugified org name
 - `{{ORG_NAME_UPPER}}` -- the uppercased slug
-- `{{LINEAR_PROJECT}}` -- the Linear group/project name
+- `{{LINEAR_TEAM}}` -- the auto-detected Linear team name
+- `{{LINEAR_PROJECT}}` -- the Linear project name
 - `{{DATE}}` -- today's date
 - `{{LINEAR_TICKETS}}` -- comma-separated list of issue identifiers from Step 1 (or "none" if no project found)
 - `{{DEPENDENCY_GRAPH}}` -- if issues exist, create a simple linear graph ordered by priority. If no issues, write `No issues yet`
@@ -125,7 +135,7 @@ Read the template at `templates/ROADMAP-TEMPLATE.md`. Replace all placeholders:
 If no issues were found, write:
 
 ```markdown
-No Linear issues found for this project. Create cards in Linear under the "{{linear_group}}" project and run `/update-roadmap` to populate this roadmap.
+No Linear issues found for this project. Create cards in Linear under the "{{linear_project}}" project and run `/update-roadmap` to populate this roadmap.
 ```
 
 Write the result to `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md`.
@@ -139,7 +149,7 @@ Write the result to `agent/{{ORG_NAME_SLUG}}/plans/ROADMAP-{{ORG_NAME_UPPER}}.md
 5. If it does NOT exist, create it:
    - Title: `agent-industry-version`
    - Description: the version string
-   - Use `create_issue` with the same `teamId` as the other issues in this project
+   - Use `create_issue` with `linear_team_id` as the `teamId`
    - After creation, immediately set its state to "Done" using `update_issue_state` -- this is a metadata card, not a task
 
 ## Step 6: Update the MASTER-AGENT with the roadmap reference
@@ -148,7 +158,7 @@ Go back to the generated MASTER-AGENT file and fill in the roadmap section's `li
 
 ## Step 7: Write factory state file
 
-Read the template at `templates/factory-state.json.example` for the schema reference. Write `.factory-state.json` at the workspace root with the customer identity and initial agent tree:
+Read the template at `templates/factory-state.json.example` for the schema reference. Write `.factory-state.json` at the workspace root with the workspace identity and initial agent tree:
 
 ```json
 {
@@ -156,6 +166,8 @@ Read the template at `templates/factory-state.json.example` for the schema refer
   "org_name": "{{ORG_NAME}}",
   "org_name_slug": "{{ORG_NAME_SLUG}}",
   "org_name_upper": "{{ORG_NAME_UPPER}}",
+  "linear_team": "{{LINEAR_TEAM}}",
+  "linear_team_id": "{{LINEAR_TEAM_ID}}",
   "linear_project": "{{LINEAR_PROJECT}}",
   "agent_root": "agent/{{ORG_NAME_SLUG}}",
   "initialized_at": "{{DATE}}",
@@ -203,7 +215,7 @@ Next steps:
 
 ## Important rules
 
-- Do NOT hardcode any project-specific names, paths, or references in the generated files. Everything uses the `{{org_name}}` and `{{linear_group}}` parameters.
+- Do NOT hardcode any project-specific names, paths, or references in the generated files. Everything uses the `{{org_name}}` and `{{linear_project}}` parameters.
 - The templates in `templates/` are the source of truth. The command only reads and fills them.
 - All generated files must include the Linear Card Policy section.
 - All generated files must include Document Maintenance metadata blocks.

@@ -1,23 +1,25 @@
 {
   "version": "2.0.0",
-  "org_name": "Customer Name",
-  "org_name_slug": "customer-name",
-  "org_name_upper": "CUSTOMER-NAME",
-  "linear_project": "customer-project",
-  "agent_root": "agent/customer-name",
+  "org_name": "Workspace Name",
+  "org_name_slug": "workspace-name",
+  "org_name_upper": "WORKSPACE-NAME",
+  "linear_team": "team-name",
+  "linear_team_id": "uuid-from-linear",
+  "linear_project": "workspace-project",
+  "agent_root": "agent/workspace-name",
   "initialized_at": "YYYY-MM-DD",
   "repos": ["repo-one", "repo-two"],
   "tree": {
     "id": "master",
     "type": "master",
     "scope": "full",
-    "path": "agent/customer-name/MASTER-AGENT-CUSTOMER-NAME.md",
+    "path": "agent/workspace-name/MASTER-AGENT-WORKSPACE-NAME.md",
     "children": [
       {
         "id": "roadmap",
         "type": "roadmap",
         "scope": "full",
-        "path": "agent/customer-name/plans/ROADMAP-CUSTOMER-NAME.md",
+        "path": "agent/workspace-name/plans/ROADMAP-WORKSPACE-NAME.md",
         "children": []
       }
     ]
