@@ -29,15 +29,18 @@ MASTER
 
 The application agent knows the codebase and knows how to test it. The platform agent knows the infrastructure, knows how to deploy it, and has embedded specialist knowledge for the cloud providers in use. Sub-agents carry narrower slices of knowledge so each agent operates with only the context it needs.
 
+## How it works
+
+The AI reads the agent files for context when you ask questions or work on tasks. When you ask about a Linear card, the AI fetches it directly via MCP. When you ask about code, it reads the relevant application agent first for structure, then looks at the repo. The roadmap agent holds card rules and priorities.
+
+`.factory-state.json` holds workspace metadata, the agent tree, and Linear integration details. The AI reads it to know which agents and projects exist.
+
 ## Workspace layout
 
 Clone this repo once per workspace. It becomes the workspace root. Clone the project repositories inside it under `repos/` (gitignored).
 
 ```
 ~/projects/my-workspace/              <-- agent-industry clone (workspace root)
-  .cursor/commands/mayday.md          <-- detected by Cursor
-  .claude/commands/mayday.md          <-- detected by Claude Code
-  .agent/workflows/mayday.md          <-- detected by Antigravity
   templates/                          <-- agent templates
   agent/                              <-- generated per workspace (committed)
   repos/                              <-- project repos (gitignored)
@@ -45,45 +48,21 @@ Clone this repo once per workspace. It becomes the workspace root. Clone the pro
   VERSION
 ```
 
-This structure is required because all three IDEs (Cursor, Claude Code, Antigravity) only detect commands, workflows, and rules from the workspace root. They will not traverse into subdirectories.
+## Linear integration
 
-Linear is organized with one group (project) per workspace, all in your Linear team.
+Each workspace maps to a Linear team and project. The roadmap agent stores the team and project IDs. Cards are created with both `teamId` and `projectId`.
 
-## Entry point
+The roadmap agent is the single source of truth for all Linear card rules:
 
-Run `/mayday` to get started. It is the only slash command exposed across all IDEs. The menu is contextual -- it adapts based on initialization state, agent tree depth, and which agents exist:
-
-| Option | Action | What it does |
-|--------|--------|-------------|
-| init | Initialize a new workspace | Validates Linear + Context7, scaffolds MASTER + ROADMAP, creates version card |
-| submaster | Create a Sub-Master | Adds an orchestration layer for a domain/service/module |
-| application | Create an Application Agent | Parses codebase and test landscape, generates unified code + test agent |
-| platform | Create a Platform Agent | Parses infra, deployment, and cloud providers, generates unified infra + deploy + specialist agent |
-| update | Update agents and sync Linear | Tree-aware update: walks the hierarchy, updates only agents whose scope intersects with changes |
-| sync | Sync Roadmap with Linear | Checks version, pulls latest from Linear, diffs and updates the roadmap |
-| feature | New feature card | Suggests next card from roadmap or drafts a new feature card in Linear |
-| bug | Bug / fix card | Drafts and creates a bug/fix card in Linear following the roadmap's card rules |
-| version | Check version | Compares local, generated, and Linear versions side by side |
+- **Card structure** -- opening paragraph, acceptance criteria (`*` bullets), todo checkboxes (`- [ ]`)
+- **Formatting** -- bold headings (not `#`), inline code for paths and env vars, no emojis, no filler
+- **Tone** -- short direct sentences, operator perspective for AC, implementer perspective for todos
+- **MCP usage** -- `create_issue` to create, `issue` to fetch by identifier (never `search_issues`), `update_issue` with UUID
+- **Confidentiality** -- never mention agent files, paths, or internal structure in card content
 
 ## Project structure
 
 ```
-.cursor/
-  commands/mayday.md                 -- the single slash command (source of truth)
-  procedures/                        -- procedure files (logic, not exposed as commands)
-    init-agents.md
-    create-application-agent.md
-    create-platform-agent.md
-    create-sub-master.md
-    update-agents.md
-    update-roadmap.md
-    create-feature-card.md
-    create-bug-card.md
-    check-version.md
-.claude/commands/mayday.md           -- delegates to .cursor/commands/
-.agent/
-  workflows/mayday.md                -- delegates to .cursor/commands/
-  rules/agent-system.md              -- always-on behavioral rules
 templates/                           -- agent templates (source of truth)
   MASTER-AGENT-TEMPLATE.md
   SUB-MASTER-AGENT-TEMPLATE.md
@@ -92,20 +71,16 @@ templates/                           -- agent templates (source of truth)
   ROADMAP-TEMPLATE.md
   factory-state.json.example
   mcp.json.example
-repos/                               -- project repos cloned here (gitignored)
 agent/                               -- generated per workspace (committed)
+repos/                               -- project repos cloned here (gitignored)
+.factory-state.json                  -- workspace state (gitignored)
 VERSION                              -- local version anchor
 CLAUDE.md                            -- Claude Code project context
 AGENTS.md                            -- Antigravity/universal project context
-.factory-state.json                  -- persisted workspace state (gitignored)
-.gitignore                           -- ignores repos/ and .factory-state.json
+.gitignore
 ```
 
-The Cursor procedure files in `.cursor/procedures/` are the single source of truth for all logic. Claude Code and Antigravity delegate to them.
-
 ## Agent categories
-
-Agents are grouped by concern:
 
 **Application** (code + test unified) -- the agent knows the codebase architecture, data models, API layer, design patterns, and testing strategy all in one file. Part I covers the codebase, Part II covers testing. When implementing a feature, the agent sees both the code patterns and the test conventions without switching files.
 
@@ -115,24 +90,15 @@ Agents are grouped by concern:
 
 ## Version management
 
-Agent-industry tracks its version through a `VERSION` file at the root and a corresponding Linear card per workspace.
-
-When you initialize a workspace (`init`), it creates a Linear card titled `agent-industry-version` in the workspace's group with the version as its description.
-
-When you sync the roadmap (`sync`) or check version (`version`), it compares the local `VERSION` file against the Linear card:
-- Remote newer than local = your copy is outdated, pull the latest
-- Local newer than remote = pushes the new version to Linear
-- Match = in sync
-
-This lets you update agent-industry once, then see which workspaces are on which version by checking their Linear group.
+Agent-industry tracks its version through a `VERSION` file at the root and a corresponding Linear card per workspace titled `agent-industry-version`.
 
 ## Prerequisites
 
-Two MCP servers must be configured before running `/mayday`:
+Two MCP servers must be configured:
 
 **Linear MCP** -- roadmap sync, card management, version tracking. Needs a Linear API key from your team.
 
-**Context7 MCP** -- up-to-date library documentation. Agents use this instead of relying on training data. Get a key at [context7.com/dashboard](https://context7.com/dashboard).
+**Context7 MCP** -- up-to-date library documentation. Agents use this instead of relying on training data.
 
 ### MCP setup by IDE
 
@@ -153,27 +119,32 @@ Two MCP servers must be configured before running `/mayday`:
 }
 ```
 
-**Claude Code** -- run from your terminal:
+**Claude Code** -- add to `.mcp.json` at project root (gitignored):
 
-```bash
-claude mcp add linear -- npx -y @mkusaka/mcp-server-linear
-claude mcp add context7 -- npx -y @upstash/context7-mcp
+```json
+{
+  "mcpServers": {
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "@mkusaka/mcp-server-linear"],
+      "env": { "LINEAR_API_KEY": "YOUR_KEY" }
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
 ```
 
-Set `LINEAR_API_KEY` in your environment. Verify with `/mcp` inside Claude Code.
+Enable MCP servers in `~/.claude/settings.json`:
+
+```json
+{
+  "enableAllProjectMcpServers": true
+}
+```
 
 **Antigravity** -- add both MCP servers via Agent Manager > MCP Settings. Use the same packages as above.
-
-## Linear integration
-
-The roadmap agent is the single source of truth for all Linear card rules. Every other agent defers to it:
-
-- **Card structure** -- opening paragraph, acceptance criteria (`*` bullets), todo checkboxes (`- [ ]`)
-- **Formatting** -- bold headings (not `#`), inline code for paths and env vars, no emojis, no filler
-- **Tone** -- short direct sentences, operator perspective for AC, implementer perspective for todos
-- **Defaults** -- cards in "Todo" state (not "Backlog"), cross-references by identifier
-- **MCP usage** -- `create_issue` to create, `issue` to fetch by identifier (never `search_issues`), `update_issue` with UUID
-- **Confidentiality** -- never mention agent files, paths, or internal structure in card content
 
 ## Setting up a new workspace
 
@@ -187,17 +158,13 @@ git clone <project-repo-url> repos/my-app
 Then:
 
 1. Open `~/projects/my-workspace` as the workspace root in your IDE
-2. Create a Linear group (project) for the workspace in your team
-3. Configure the Linear and Context7 MCP servers if not already done (see setup above)
-4. Run `/mayday` and pick `init`
-5. Create an application agent (`/mayday > application`) for your codebase -- this covers code + tests
-6. Create a platform agent (`/mayday > platform`) for your infrastructure -- this covers infra + deploy + cloud providers
-7. For large projects: create sub-masters first to organize by domain, then create scoped agents under them
-8. For focused expertise: create sub-agents under existing agents to narrow the context (e.g. an AWS sub-agent under a full platform agent)
+2. Create a Linear project for the workspace in your team
+3. Configure the Linear and Context7 MCP servers (see setup above)
+4. Ask the AI to initialize the workspace, or use the scaffolding procedures in `.cursor/procedures/`
 
 ## Migrating from older versions
 
-Workspaces created with earlier versions (v1/v2/v3) auto-migrate when you run `/mayday`. Individual agent files (CODE-AGENT, TEST-AGENT, INFRA-AGENT, DEPLOY-AGENT) are preserved as legacy nodes in the tree. You can regenerate them at any time using the `application` or `platform` options to consolidate into the unified format.
+Workspaces created with earlier versions (v1/v2/v3) auto-migrate when scaffolding is run. Individual agent files (CODE-AGENT, TEST-AGENT, INFRA-AGENT, DEPLOY-AGENT) are preserved as legacy nodes in the tree. You can regenerate them at any time using the `application` or `platform` options to consolidate into the unified format.
 
 ## Credits
 
