@@ -129,7 +129,7 @@ If neither Context7 nor web search is available, rely on established knowledge b
 
 ## Step 6: Read the PLATFORM-AGENT template
 
-Read `templates/PLATFORM-AGENT-TEMPLATE.md`. This is the structure you must follow.
+Read `templates/PLATFORM-AGENT-TEMPLATE.md` (or the specialized template selected in Step 1). This is the structure you must follow.
 
 ## Step 7: Generate the PLATFORM-AGENT
 

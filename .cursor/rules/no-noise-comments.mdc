@@ -1,0 +1,41 @@
+---
+description: Prohibit low-value comments that restate the code. Enforce comments that explain non-obvious intent.
+alwaysApply: true
+---
+
+# Comment Quality
+
+Only write a comment when the code cannot speak for itself.
+
+## Never write comments that
+
+- Restate what the code does (`# Increment counter`, `# Return result`, `// Import the module`)
+- Narrate an assignment (`task_data = event  # Data comes from EventBridge`)
+- Duplicate a function signature in prose (`# This function handles the connection`)
+- Mark obvious sections (`# Variables`, `# Main logic`, `# Error handling`)
+- Explain a change being made (no `# Added this for migration`, `# Now using zip instead of image`)
+
+## Write comments only when
+
+- The code makes a non-obvious trade-off that has a reason (e.g. why a timeout is 5s and not 30s)
+- A constraint exists outside the codebase (regulatory, infra quirk, external API behavior)
+- A deliberate workaround for a known bug or limitation is in place
+
+## Examples
+
+```python
+# BAD
+task_data = event  # Data comes from Input defined in EventBridge
+logger.setLevel(logging.INFO)  # Set log level
+
+# GOOD
+payload_part += "=" * (4 - len(payload_part) % 4)  # base64 padding: JWT segments are unpadded
+```
+
+```hcl
+# BAD
+resource "aws_lambda_function" "notifications" {  # Lambda function for notifications
+
+# GOOD
+  timeout = 30  # EventBridge retries on timeout; keep above Django's median task duration (p95 ~22s)
+```

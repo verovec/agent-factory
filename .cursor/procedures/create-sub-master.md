@@ -54,7 +54,7 @@ The parent's directory is derived from its `path` field in the tree (the directo
 
 ## Step 4: Read and apply the SUB-MASTER template
 
-Read `templates/SUB-MASTER-AGENT-TEMPLATE.md`. Replace all placeholders:
+Read `templates/domain/SUB-MASTER-AGENT-TEMPLATE.md`. Replace all placeholders:
 
 - `{{ORG_NAME}}` -- the org name
 - `{{SCOPE_NAME}}` -- the sub-master name

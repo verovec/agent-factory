@@ -1,20 +1,21 @@
 # Agent Industry
 
-Portable agent system for AI-assisted development. Hierarchical tree of scoped knowledge files orchestrated by master and sub-master agents, backed by Linear. Unified agents: application (code + test) and platform (infra + deploy + cloud specialist).
+Portable agent system for AI-assisted development. Hierarchical tree of scoped knowledge files orchestrated by master and sub-master agents, backed by Linear. Supports unified agents (application, platform) and split agents (code, test, infra, deploy), plus shared expert agents.
 
 ## How to work in this workspace
 
-Each workspace has an agent tree under `agent/`. The MASTER-AGENT is the root. Leaf agents are either application (code + test) or platform (infra + deploy + specialist). SUB-MASTER agents orchestrate subtrees for domains, services, or modules.
+Each workspace has an agent tree under `agent/`. The MASTER-AGENT is the root. Leaf agents are either unified (application, platform) or split (code, test, infra, deploy). SUB-MASTER agents orchestrate subtrees. Shared expert agents live at `agent/shared/`.
 
-When the user asks about a topic, read the relevant agents. When they ask about a Linear card, fetch it directly. When they ask about code, read the application agent for context first, then look at the repo.
+When the user asks about a topic, read the relevant agents. When they ask about a Linear card, fetch it directly. When they ask about code, read the application or code agent for context first, then look at the repo.
 
 ### Answering questions
 
 - **Linear cards**: Fetch by identifier using the `issue` MCP tool (e.g. INF-19). Never use `search_issues`.
-- **Workspace context**: Read the MASTER-AGENT, then drill into the relevant leaf agent (application or platform).
+- **Workspace context**: Read the MASTER-AGENT, then drill into the relevant leaf agent (application, platform, code, infra, test, deploy).
 - **Roadmap**: Read the ROADMAP agent for card rules, dependency graph, and priorities.
-- **Codebase**: Project repos are in `repos/`. Read the application agent first to understand structure before diving in.
-- **Infrastructure**: Read the platform agent for deployment topology, cloud providers, and IaC details.
+- **Shared experts**: When a domain agent has a `refs` field, also read the referenced expert agents from `agent/shared/`.
+- **Codebase**: Project repos are in `repos/`. Read the application or code agent first to understand structure before diving in.
+- **Infrastructure**: Read the platform or infra agent for deployment topology, cloud providers, and IaC details.
 
 ### Creating or updating Linear cards
 
@@ -28,18 +29,21 @@ Always read the roadmap agent first -- it contains the card rules. Follow them e
 ### Workspace lookup
 
 `.factory-state.json` holds workspace metadata:
-- `workspace_name`, `workspace_slug` -- identity
+- `org_name`, `org_name_slug` -- identity
 - `linear_team`, `linear_team_id` -- the Linear team
-- `linear_project`, `linear_project_id` -- the workspace's Linear project
+- `linear_project` -- the workspace's Linear project
 - `repos` -- array of repo names
+- `shared_agents` -- array of shared expert agents
 - `tree` -- recursive agent tree with paths to each agent file
 
 ## Architecture
 
 Agents form a recursive tree with unlimited depth. Any agent can have children.
 
-- **application** -- unified code + test: source code knowledge AND testing strategy in one file
-- **platform** -- unified infra + deploy + specialist: infrastructure, deployment, AND cloud provider expertise in one file
+- **application** -- unified code + test in one file
+- **platform** -- unified infra + deploy + specialist in one file
+- **code**, **test**, **infra**, **deploy** -- split agents for narrower scope
+- **expert** -- shared specialist knowledge (e.g. AWS, Terraform, Docker)
 - **planning** (roadmap) -- Linear integration, backlog, dependency tracking
 - **orchestration** (master, sub-master) -- routing and delegation, no implementation
 
@@ -47,16 +51,17 @@ Agents form a recursive tree with unlimited depth. Any agent can have children.
 
 ```
 templates/                           -- agent templates (source of truth)
-  APPLICATION-AGENT-TEMPLATE.md
-  PLATFORM-AGENT-TEMPLATE.md
-  MASTER-AGENT-TEMPLATE.md
-  SUB-MASTER-AGENT-TEMPLATE.md
-  ROADMAP-TEMPLATE.md
-  mcp.json.example
-  factory-state.json.example
-agent/                               -- generated per workspace (committed)
+  APPLICATION-AGENT-TEMPLATE.md      -- unified code + test
+  PLATFORM-AGENT-TEMPLATE.md        -- unified infra + deploy + specialist
+  SUB-MASTER-AGENT-TEMPLATE.md      -- orchestrator
+  DOCKERFILE-AGENT.md               -- specialized platform agent
+  domain/                            -- split agent templates
+  shared/                            -- expert agent template
+  config/                            -- mcp.json.example, factory-state.json.example
+agent/                               -- generated per workspace
+  shared/                            -- shared expert agents
 repos/                               -- project repos (gitignored)
-.factory-state.json                  -- workspace state (gitignored)
+.factory-state.json                  -- workspace state
 VERSION                              -- local version anchor
 ```
 
@@ -71,11 +76,11 @@ VERSION                              -- local version anchor
 
 ## Version Tracking
 
-`VERSION` file is the local anchor. A Linear card titled `agent-industry-version` in the workspace's group is the remote anchor.
+`VERSION` file is the local anchor. A Linear card titled `agent-industry-version` in the workspace's project is the remote anchor.
 
 ## MCP Servers
 
 - **Linear** (required) -- roadmap sync, card management, version tracking (`LINEAR_API_KEY`)
 - **Context7** (recommended) -- up-to-date library documentation, required for agent creation
 
-Live config: `.mcp.json` (gitignored). Template: `templates/mcp.json.example`.
+Live config: `.cursor/mcp.json` (gitignored). Template: `templates/config/mcp.json.example`.

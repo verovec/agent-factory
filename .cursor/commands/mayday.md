@@ -6,10 +6,10 @@ Do NOT print anything during this step. Gather all context first, then decide wh
 
 ### 0-pre. MCP prerequisites
 
-Before anything else, check that required MCP servers are reachable. The project ships a template at `templates/mcp.json.example` with the correct format. The live config lives at `.cursor/mcp.json` (gitignored, never committed).
+Before anything else, check that required MCP servers are reachable. The project ships a template at `templates/config/mcp.json.example` with the correct format. The live config lives at `.cursor/mcp.json` (gitignored, never committed).
 
 1. Read `.cursor/mcp.json`. If it does not exist or `mcpServers` is empty:
-   a. Copy `templates/mcp.json.example` to `.cursor/mcp.json`
+   a. Copy `templates/config/mcp.json.example` to `.cursor/mcp.json`
    b. Ask the user: "Enter your Linear API key (generate one at https://linear.app/settings/api):"
    c. Write the key into `.cursor/mcp.json` replacing the `YOUR_LINEAR_API_KEY` placeholder
    d. Tell the user: "MCP config written to `.cursor/mcp.json`. Restart MCP servers (Ctrl+Shift+P > 'MCP: Restart') and re-run /mayday."
@@ -92,16 +92,18 @@ If `initialized = true`:
    - Determine its parent from the directory structure
    - Assign the correct `category` based on type
    - Add it to the tree under the appropriate parent
-5. If the tree was modified (pruned or expanded), write `.factory-state.json` back.
-6. Compute summary stats from the tree:
+5. Also scan `shared_agents` from the top level of `.factory-state.json`. For each shared agent, verify the file at its `path` exists on disk. Prune entries whose files are missing. Scan `agent/shared/` for orphaned expert files not in the array.
+6. If the tree or shared agents were modified (pruned or expanded), write `.factory-state.json` back.
+7. Compute summary stats from the tree:
    - Count by category (application, platform, planning, orchestration)
    - Count of each agent type (including both legacy and unified types)
    - Maximum depth of the tree
    - List of leaf agents with their scopes
+   - Count and list of shared agents (experts)
 
 ### State file schema (v4)
 
-`.factory-state.json` uses a recursive tree structure. See `templates/factory-state.json.example` for the full schema.
+`.factory-state.json` uses a recursive tree structure. See `templates/config/factory-state.json.example` for the full schema.
 
 Each node in the tree has:
 - `id`: unique identifier within the tree
@@ -111,7 +113,21 @@ Each node in the tree has:
 - `scope_paths`: (optional) array of repo paths this agent owns
 - `path`: relative path to the agent file
 - `specialists`: (platform only) array of provider domain slugs embedded in this agent (e.g. `["aws", "k8s"]`)
+- `refs`: (optional) array of shared agent IDs this node depends on (e.g. `["expert-aws"]`)
 - `children`: array of child nodes (empty for leaf agents)
+
+### Shared agents (experts)
+
+Shared agents live at `agent/shared/` and provide specialist knowledge (e.g. AWS, Docker, Terraform) that any agent in the tree can reference. They stay current by fetching documentation via Context7 at task time.
+
+Each shared agent entry in `shared_agents` has:
+- `id`: unique identifier (e.g. `expert-aws`)
+- `type`: `"expert"`
+- `scope`: description of expertise
+- `path`: relative path to the agent file (under `agent/shared/`)
+- `doc_source`: (optional) Context7 library identifier for documentation lookups
+
+Domain agents can declare a `refs` array listing shared agent IDs they depend on. When the AI reads a domain agent, it should also read the referenced shared agents for context.
 
 ### Agent categories
 
@@ -179,6 +195,9 @@ Team:      {{LINEAR_TEAM}}
 Project:   {{LINEAR_PROJECT}}
 Repos:     repos/my-project, repos/api
 
+Shared experts:
+  (none)
+
 Agent tree:
   MASTER-AGENT
     Planning:
@@ -234,6 +253,11 @@ Always include all options but order them by relevance:
 | submaster | Create a Sub-Master |
 | application | Create an Application Agent (code + test) |
 | platform | Create a Platform Agent (infra + deploy + specialists) |
+| code | Create a Code Agent |
+| test | Create a Test Agent |
+| infra | Create an Infrastructure Agent |
+| deploy | Create a Deploy Agent |
+| expert | Create a shared Expert Agent |
 | update | Update agents and sync Linear |
 | sync | Sync Roadmap with Linear |
 | feature | New feature card |
@@ -259,6 +283,11 @@ Print the full agent tree (grouped by category), then put maintenance actions fi
 | submaster | Add a Sub-Master |
 | application | Add/regenerate an Application Agent |
 | platform | Add/regenerate a Platform Agent |
+| code | Add/regenerate a Code Agent |
+| test | Add/regenerate a Test Agent |
+| infra | Add/regenerate an Infrastructure Agent |
+| deploy | Add/regenerate a Deploy Agent |
+| expert | Add/regenerate a shared Expert Agent |
 | init | Re-initialize workspace |
 
 Wait for the user's selection. Then execute the matching option below.
@@ -309,6 +338,47 @@ Detected platform indicators:
 ```
 
 Then read `.cursor/procedures/create-platform-agent.md` and execute every step.
+
+## Option: code
+
+**Now** scan the repos in `repos/` for language/framework indicators (package.json, requirements.txt, go.mod, Cargo.toml, pom.xml, Gemfile, Dockerfile, docker-compose, etc.) to build a tech summary per repo.
+
+If multiple repos exist in `repos/`, use AskQuestion to ask which repo to analyze. If only one repo exists, use it automatically.
+
+Then read `.cursor/procedures/create-code-agent.md` and execute every step, targeting the selected repo.
+
+## Option: test
+
+**Prerequisite check**: Check the agent tree for at least one `code` type node. If none exist, stop and tell the user: "The Test Agent requires a Code Agent. Create one first via /mayday." Do not proceed.
+
+**Now** scan the repos in `repos/` for test-related indicators (test directories, test configuration files like jest.config, pytest.ini, vitest.config, .mocharc, coverage configuration, test fixtures) to build a test landscape summary per repo.
+
+If multiple repos exist in `repos/`, use AskQuestion to ask which repo to analyze. If only one repo exists, use it automatically.
+
+Then read `.cursor/procedures/create-test-agent.md` and execute every step, targeting the selected repo.
+
+## Option: infra
+
+**Now** scan the repos in `repos/` for infrastructure indicators (Dockerfile, docker-compose, terraform/, infrastructure/, .github/workflows/, Procfile, etc.) to build a tech summary per repo.
+
+Same repo selection as Option code if multiple repos exist.
+
+Then read `.cursor/procedures/create-infra-agent.md` and execute every step, targeting the selected repo.
+
+## Option: deploy
+
+**Now** scan the existing infra agents in the tree to understand the deployment topology:
+
+1. Walk the agent tree to find all infra agents. Read each one for service-specific deploy commands, container config, and health check endpoints.
+2. Read `templates/domain/DEPLOY-AGENT-TEMPLATE.md` for the template structure
+3. Ask the user where in the tree this deploy agent should be placed (tree walk, same as other agents)
+4. Ask for scope (full deployment lifecycle, or scoped to a service)
+
+Then read `.cursor/procedures/create-deploy-agent.md` and execute every step.
+
+## Option: expert
+
+Read `.cursor/procedures/create-expert-agent.md` and execute every step.
 
 ## Option: update
 

@@ -9,6 +9,15 @@
   "agent_root": "agent/workspace-name",
   "initialized_at": "YYYY-MM-DD",
   "repos": ["repo-one", "repo-two"],
+  "shared_agents": [
+    {
+      "id": "expert-aws",
+      "type": "expert",
+      "scope": "AWS services, IAM, ECS, RDS, S3, CloudFront, VPC, etc.",
+      "path": "agent/shared/EXPERT-AWS.md",
+      "doc_source": "context7:aws"
+    }
+  ],
   "tree": {
     "id": "master",
     "type": "master",
@@ -37,37 +46,9 @@
         "type": "platform",
         "category": "platform",
         "scope": "Full infrastructure, deployment, and provider knowledge",
-        "specialists": ["aws", "gcp", "azure"],
+        "specialists": ["aws"],
         "path": "agent/workspace-name/platform/PLATFORM-AGENT-WORKSPACE-NAME.md",
-        "children": [
-          {
-            "id": "aws-platform",
-            "type": "platform",
-            "category": "platform",
-            "scope": "AWS-specific infrastructure and deployment",
-            "specialists": ["aws"],
-            "path": "agent/workspace-name/platform/aws/PLATFORM-AGENT-AWS.md",
-            "children": []
-          },
-          {
-            "id": "gcp-platform",
-            "type": "platform",
-            "category": "platform",
-            "scope": "GCP-specific infrastructure and deployment",
-            "specialists": ["gcp"],
-            "path": "agent/workspace-name/platform/gcp/PLATFORM-AGENT-GCP.md",
-            "children": []
-          },
-          {
-            "id": "azure-platform",
-            "type": "platform",
-            "category": "platform",
-            "scope": "Azure-specific infrastructure and deployment",
-            "specialists": ["azure"],
-            "path": "agent/workspace-name/platform/azure/PLATFORM-AGENT-AZURE.md",
-            "children": []
-          }
-        ]
+        "children": []
       }
     ]
   }

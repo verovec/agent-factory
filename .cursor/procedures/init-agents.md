@@ -26,12 +26,12 @@ The `repos/` folder is gitignored. Nothing from the project repos is committed t
 
 ## Step 0: Validate MCP prerequisites
 
-Before anything else, verify that both required MCP servers are available and configured. The project ships a template at `templates/mcp.json.example` with the correct format. The live config lives at `.cursor/mcp.json` (gitignored, never committed).
+Before anything else, verify that both required MCP servers are available and configured. The project ships a template at `templates/config/mcp.json.example` with the correct format. The live config lives at `.cursor/mcp.json` (gitignored, never committed).
 
 ### 0a. Linear MCP (required)
 
 1. Read `.cursor/mcp.json`. If it does not exist or `mcpServers` is empty:
-   a. Copy `templates/mcp.json.example` to `.cursor/mcp.json`
+   a. Copy `templates/config/mcp.json.example` to `.cursor/mcp.json`
    b. Ask the user: "Enter your Linear API key (generate one at https://linear.app/settings/api):"
    c. Write the key into `.cursor/mcp.json` replacing the `YOUR_LINEAR_API_KEY` placeholder
    d. Tell the user: "MCP config written to `.cursor/mcp.json`. Restart MCP servers (Ctrl+Shift+P > 'MCP: Restart') and re-run /mayday."
@@ -90,7 +90,7 @@ The `templates/` folder already exists at the project root (shipped with agent-i
 
 ## Step 3: Read and apply the MASTER-AGENT template
 
-Read the template at `templates/MASTER-AGENT-TEMPLATE.md`. Replace all placeholders:
+Read the template at `templates/domain/MASTER-AGENT-TEMPLATE.md`. Replace all placeholders:
 
 - `{{ORG_NAME}}` -- the org name as provided (title case)
 - `{{ORG_NAME_SLUG}}` -- the slugified org name
@@ -110,7 +110,7 @@ Write the result to `agent/{{ORG_NAME_SLUG}}/MASTER-AGENT-{{ORG_NAME_UPPER}}.md`
 
 ## Step 4: Generate the roadmap agent from Linear issues
 
-Read the template at `templates/ROADMAP-TEMPLATE.md`. Replace all placeholders:
+Read the template at `templates/domain/ROADMAP-TEMPLATE.md`. Replace all placeholders:
 
 - `{{ORG_NAME}}` -- the org name
 - `{{ORG_NAME_SLUG}}` -- the slugified org name
@@ -158,7 +158,7 @@ Go back to the generated MASTER-AGENT file and fill in the roadmap section's `li
 
 ## Step 7: Write factory state file
 
-Read the template at `templates/factory-state.json.example` for the schema reference. Write `.factory-state.json` at the workspace root with the workspace identity and initial agent tree:
+Read the template at `templates/config/factory-state.json.example` for the schema reference. Write `.factory-state.json` at the workspace root with the workspace identity and initial agent tree:
 
 ```json
 {
