@@ -1,4 +1,4 @@
-The user wants to create a shared expert agent. Expert agents live at `agent/shared/` and are available to all domains. They provide specialist knowledge on a technology or platform (e.g. AWS, Scaleway, Docker, PostgreSQL) and stay current by fetching documentation via Context7.
+The user wants to create a shared expert agent. Expert agents live at `agent/shared/` and are available to any agent in the tree. They provide specialist knowledge on a technology or platform (e.g. AWS, Scaleway, Docker, PostgreSQL) and stay current by fetching documentation via Context7.
 
 ## Step 0: Check existing experts
 
@@ -45,7 +45,7 @@ Read `templates/shared/EXPERT-AGENT-TEMPLATE.md`. Replace all placeholders:
 - `{{DOC_SOURCE}}` -- Context7 library identifier (or "manual" if not found)
 - `{{EXPERTISE_SECTIONS}}` -- generate from documentation: key services, APIs, resource types, common operations
 - `{{DOC_SOURCES_LIST}}` -- list of Context7 libraries or official doc URLs
-- `{{CONVENTIONS_SECTION}}` -- naming conventions, tagging standards, resource organization patterns observed across domains
+- `{{CONVENTIONS_SECTION}}` -- naming conventions, tagging standards, resource organization patterns observed in the workspace
 - `{{KNOWN_PATTERNS_SECTION}}` -- common patterns used in this workspace (scan existing infra/code agents for usage)
 - `{{ANTI_PATTERNS_SECTION}}` -- common mistakes, security risks, cost pitfalls
 - `{{REFERENCED_BY_LIST}}` -- initially empty, populated as domain agents link to this expert
@@ -56,7 +56,7 @@ Write to: `agent/shared/{{file_name}}`
 
 Ask the user: "Link this expert to any existing domain agents?"
 
-If yes, use AskQuestion to list all infra and code agents across all domains. Let the user pick which ones should reference this expert (allow multiple selection).
+If yes, use AskQuestion to list all infra, code, application, and platform agents in the tree. Let the user pick which ones should reference this expert (allow multiple selection).
 
 For each selected domain agent:
 1. Add `expert_id` to the node's `refs` array in `.factory-state.json`

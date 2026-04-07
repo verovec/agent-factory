@@ -10,7 +10,7 @@ DOC_SOURCE: {{DOC_SOURCE}}
 
 ## Purpose
 
-This is a shared specialist agent. It is NOT scoped to a single domain -- any domain's agents can reference it. It provides deep knowledge of {{EXPERT_NAME}} that stays current through documentation lookups.
+This is a shared specialist agent. Any agent in the workspace tree can reference it. It provides deep knowledge of {{EXPERT_NAME}} that stays current through documentation lookups.
 
 When a domain agent (code, infra, deploy) references this expert, read this file for context before acting. This agent does not own code or infrastructure -- it provides knowledge and best practices.
 
@@ -56,7 +56,7 @@ DOCUMENT_OWNER: Shared
 AUTHORS: [TO BE FILLED]
 
 UPDATE_TRIGGERS:
-- New service or resource type used across domains
+- New service or resource type used in the workspace
 - Conventions or best practices change
 - New anti-patterns discovered
 - Documentation sources change
