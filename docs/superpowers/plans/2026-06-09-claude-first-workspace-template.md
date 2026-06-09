@@ -146,7 +146,7 @@ git commit -m "refactor: replace repos/ multi-repo model with committed stack/ m
 
 ```json
 {
-  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["context7", "github", "linear"],
   "hooks": {
     "PreToolUse": [
       {
