@@ -30,7 +30,7 @@ Other agent types:
 
 ## Project Structure
 
-This repo is cloned once per workspace. It IS the workspace root. Project repos are cloned into `repos/` (gitignored).
+This repo is cloned once per project. It IS the project repo. Project code lives in `stack/` (backend/, frontend/, terraform/, docs/) and is committed.
 
 ```
 .cursor/commands/mayday.md           -- the single slash command (source of truth)
@@ -57,7 +57,7 @@ templates/                           -- agent templates (source of truth)
   config/                            -- configuration templates
     mcp.json.example
     factory-state.json.example
-repos/                               -- project repos (gitignored)
+stack/                               -- project code (committed)
 agent/<workspace-slug>/              -- generated per workspace (gitignored in template)
 agent/shared/                        -- shared expert agents
 .factory-state.json                  -- workspace state (gitignored in template)

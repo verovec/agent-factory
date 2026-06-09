@@ -14,7 +14,7 @@ When the user asks about a topic, read the relevant agents. When they ask about 
 - **Workspace context**: Read the MASTER-AGENT, then drill into the relevant leaf agent (application, platform, code, infra, test, deploy).
 - **Roadmap**: Read the ROADMAP agent for card rules, dependency graph, and priorities.
 - **Shared experts**: When a domain agent has a `refs` field, also read the referenced expert agents from `agent/shared/`.
-- **Codebase**: Project repos are in `repos/`. Read the application or code agent first to understand structure before diving in.
+- **Codebase**: Project code is in `stack/`. Read the application or code agent first to understand structure before diving in.
 - **Infrastructure**: Read the platform or infra agent for deployment topology, cloud providers, and IaC details.
 
 ### Creating or updating Linear cards
@@ -32,7 +32,7 @@ Always read the roadmap agent first -- it contains the card rules. Follow them e
 - `org_name`, `org_name_slug` -- identity
 - `linear_team`, `linear_team_id` -- the Linear team
 - `linear_project` -- the workspace's Linear project
-- `repos` -- array of repo names
+- `stack` -- the project monorepo subfolders
 - `shared_agents` -- array of shared expert agents
 - `tree` -- recursive agent tree with paths to each agent file
 
@@ -60,7 +60,7 @@ templates/                           -- agent templates (source of truth)
   config/                            -- mcp.json.example, factory-state.json.example
 agent/                               -- generated per workspace
   shared/                            -- shared expert agents
-repos/                               -- project repos (gitignored)
+stack/                               -- project code (committed)
 .factory-state.json                  -- workspace state
 VERSION                              -- local version anchor
 ```
