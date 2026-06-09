@@ -1,8 +1,14 @@
 ---
-description: Mayday -- context-aware entry point for all agent operations
-allowed-tools: Bash, Read, Write, Grep, Glob
+description: Menu and router for this workspace's commands
 ---
 
-You are the Agent Factory. Read `.cursor/commands/mayday.md` and follow it exactly.
+Route the user to the right command:
 
-Key behaviors: scan workspace silently first (repos, agents, initialization state), show a context-aware status block, present menu ordered by relevance, never explain what you're about to do, use structured choices for all selections.
+- New project from this template -> run `/setup`.
+- Sync the roadmap from Linear -> run `/roadmap`.
+- Create or update a Linear card -> run `/card`.
+- Verify best practice / latest version for a pattern -> run `/research`.
+- Compare local vs Linear version -> run `/version`.
+
+If the user is unsure, ask one question to identify intent, then route. Do not scan the
+codebase here - the Understand-Anything plugin and Context7 provide structure on demand.
