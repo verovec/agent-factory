@@ -2,7 +2,7 @@ The user wants to initialize the agent system for a new workspace. This command 
 
 ## Workspace layout
 
-This repo is cloned once per workspace. Project repositories are cloned INSIDE it. The IDE opens this folder as the workspace root so all commands, templates, and rules are detected.
+This repo is cloned once per project and becomes the project's own repository. Project code lives in `stack/` (committed). The IDE opens this folder as the workspace root so all commands, templates, and rules are detected.
 
 ```
 ~/projects/workspace-name/            <-- agent-industry clone (workspace root)
@@ -12,14 +12,14 @@ This repo is cloned once per workspace. Project repositories are cloned INSIDE i
   templates/                         <-- agent templates
   agent/
     workspace-name/                  <-- generated per workspace (named after org_name_slug)
-  stack/                             <-- project source (single monorepo, gitignored)
+  stack/                             <-- project code (single monorepo, committed)
     backend/
     frontend/
     terraform/
     docs/
 ```
 
-The `stack/` folder is gitignored. The workspace IS the project repo. Nothing from agent-industry is committed to the project's remote. The `agent/` folder is committed so agent files can be shared.
+The workspace IS the project repo: `stack/` (project code) and the `agent/` folder (agent files) are all committed to the project's remote.
 
 ## Parameters
 
