@@ -1,172 +1,92 @@
 # Agent Factory
 
-A portable agent system for AI-assisted development. A hierarchical tree of scoped knowledge files orchestrated by master and sub-master agents, backed by Linear for project management. Works on Cursor, Claude Code, and Antigravity.
+A Claude-first monorepo **project template**. Clone it once, run `/setup`, and you get a
+runnable project (frontend + backend + Terraform/AWS) wired with AI-native tooling, CI, and
+Linear integration. Claude Code is the primary surface; Cursor and Antigravity work too via
+thin delegators.
 
-## Architecture
+This is the **multi-IDE** edition. A Claude-only twin lives at
+[`claude-workspace`](https://github.com/verovec/claude-workspace).
 
-Agents form a recursive tree with unlimited depth. Any agent can have children for finer-grained context and better output quality. Two agent models coexist -- choose based on project complexity:
+## Philosophy: native-first and lean
 
-**Unified model** (fewer files, broader context per file):
-- **APPLICATION-AGENT** -- code + test in one file
-- **PLATFORM-AGENT** -- infra + deploy + specialist knowledge in one file
+Context is expensive, so almost nothing is always-on. `CLAUDE.md` carries only the rules
+that apply to every task. Everything else is pulled on demand:
 
-**Split model** (more files, narrower scope per file):
-- **CODE-AGENT** -- source code knowledge
-- **TEST-AGENT** -- testing strategy and conventions
-- **INFRA-AGENT** -- infrastructure as code, secrets, CI/CD
-- **DEPLOY-AGENT** -- environment promotion, rollback, release tracking
+- **Skills** (`.claude/skills/`) — knowledge loaded only when relevant (coding philosophy,
+  Linear/roadmap rules, how to research a new pattern).
+- **Subagents** (`.claude/agents/`) — noisy work (research, review, scaffolding) runs in an
+  isolated context and reports back a summary.
+- **Code structure** comes from the [Understand-Anything](https://github.com/Egonex-AI/Understand-Anything)
+  plugin + Context7, not hand-maintained docs.
+- **Hooks** (`.claude/hooks/`) — invisible non-negotiables (e.g. no emojis).
 
-**Shared across both models**:
-- **MASTER-AGENT** -- single root entry point, orchestrates the full hierarchy
-- **SUB-MASTER** -- intermediate orchestrator for a domain, service, or module
-- **ROADMAP** -- owns all Linear card rules, backlog, dependency tracking
-- **EXPERT-AGENT** -- shared specialist knowledge (e.g. AWS, Terraform, Docker)
-- **DOCKERFILE-AGENT** -- specialized platform agent for container patterns
+`.claude/` is the single source of truth. `.cursor/` and `.agent/` are one-line delegators
+that point back at it, so Cursor and Antigravity stay in sync with zero duplication.
 
-```
-MASTER
-  +-- ROADMAP
-  +-- APPLICATION-AGENT (full) -- code + test
-  |     +-- APPLICATION-AGENT (auth) -- scoped sub-agent
-  +-- PLATFORM-AGENT (full) -- infra + deploy + AWS
-  +-- SUB-MASTER: Frontend
-        +-- CODE-AGENT (ui-components)
-        +-- TEST-AGENT (ui-components)
-        +-- INFRA-AGENT (cdn)
-```
+## Layout
 
-## How it works
-
-The AI reads the agent files for context when you ask questions or work on tasks. When you ask about a Linear card, the AI fetches it directly via MCP. When you ask about code, it reads the relevant agent first for structure, then looks at the repo. The roadmap agent holds card rules and priorities.
-
-`.factory-state.json` holds workspace metadata, the agent tree, and Linear integration details. The AI reads it to know which agents and projects exist.
-
-## Workspace layout
-
-Clone this repo once per project. It becomes the project repo. Project code lives in `stack/` (committed).
+The workspace **is** the project monorepo. Clone it once per project; it becomes that
+project's repo. Application code lives in `stack/` (committed).
 
 ```
 ~/projects/my-project/                <-- template clone (becomes the project repo)
-  .claude/                            <-- Claude-first config (source of truth)
-  .github/  .vscode/  .devcontainer/
-  CLAUDE.md  SETUP.md  .mcp.json
-  templates/
-  stack/                              <-- project code (committed)
+  .claude/                            <-- source of truth
+    commands/   skills/   agents/   hooks/   settings.json
+  .cursor/  .agent/                  <-- delegate to .claude/
+  .github/workflows/                 <-- reusable + stack-aware CI
+  .vscode/  .devcontainer/
+  CLAUDE.md  AGENTS.md  SETUP.md  .mcp.json
+  templates/                         <-- optional agent-tree templates (generated on demand)
+  stack/                             <-- project code (committed)
     backend/  frontend/  terraform/  docs/
 ```
 
-## Linear integration
+## Commands
 
-Each workspace maps to a Linear team and project. The roadmap agent stores the team and project IDs. Cards are created with both `teamId` and `projectId`.
+| Command | Purpose |
+|---------|---------|
+| `/setup` | Bootstrap a new project: detach the template remote, scaffold the chosen stack at latest versions, generate stack-tuned config, create and link a new GitHub repo |
+| `/roadmap` | Sync the roadmap state file from Linear |
+| `/card` | Create or update a Linear card (rules live in the `roadmap-linear` skill) |
+| `/research` | Verify current best practice and latest stable version before integrating a pattern |
+| `/version` | Compare the local `VERSION` with the Linear version card |
+| `/mayday` | Router that points you to the right command |
 
-The roadmap agent is the single source of truth for all Linear card rules:
-
-- **Card structure** -- opening paragraph, acceptance criteria (`*` bullets), todo checkboxes (`- [ ]`)
-- **Formatting** -- bold headings (not `#`), inline code for paths and env vars, no emojis, no filler
-- **Tone** -- short direct sentences, operator perspective for AC, implementer perspective for todos
-- **MCP usage** -- `create_issue` to create, `issue` to fetch by identifier (never `search_issues`), `update_issue` with UUID
-- **Confidentiality** -- never mention agent files, paths, or internal structure in card content
-
-## Project structure
-
-```
-templates/                           -- agent templates (source of truth)
-  APPLICATION-AGENT-TEMPLATE.md      -- unified code + test
-  PLATFORM-AGENT-TEMPLATE.md        -- unified infra + deploy + specialist
-  SUB-MASTER-AGENT-TEMPLATE.md      -- orchestrator
-  DOCKERFILE-AGENT.md               -- container patterns and security
-  domain/                            -- split agent templates
-    MASTER-AGENT-TEMPLATE.md
-    CODE-AGENT-TEMPLATE.md
-    TEST-AGENT-TEMPLATE.md
-    INFRA-AGENT-TEMPLATE.md
-    DEPLOY-AGENT-TEMPLATE.md
-    ROADMAP-TEMPLATE.md
-    SUB-MASTER-AGENT-TEMPLATE.md
-  shared/                            -- expert agent template
-    EXPERT-AGENT-TEMPLATE.md
-  config/                            -- configuration templates
-    factory-state.json.example
-    mcp.json.example
-agent/                               -- generated per workspace (gitignored in template)
-stack/                               -- project code (committed)
-  backend/  frontend/  terraform/  docs/
-.factory-state.json                  -- workspace state (gitignored in template)
-VERSION                              -- local version anchor
-CLAUDE.md                            -- Claude Code project context
-AGENTS.md                            -- Antigravity/universal project context
-.gitignore
-```
-
-## Version management
-
-Agent-industry tracks its version through a `VERSION` file at the root and a corresponding Linear card per workspace titled `agent-industry-version`.
-
-## Prerequisites
-
-Two MCP servers must be configured:
-
-**Linear MCP** -- roadmap sync, card management, version tracking. Needs a Linear API key from your team.
-
-**Context7 MCP** -- up-to-date library documentation. Agents use this instead of relying on training data.
-
-### MCP setup by IDE
-
-**Cursor** -- add to `.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "linear": {
-      "command": "npx",
-      "args": ["-y", "@mkusaka/mcp-server-linear"],
-      "env": { "LINEAR_API_KEY": "YOUR_KEY" }
-    },
-    "context7": {
-      "url": "https://mcp.context7.com/mcp"
-    }
-  }
-}
-```
-
-**Claude Code** -- add to `.mcp.json` at project root (gitignored):
-
-```json
-{
-  "mcpServers": {
-    "linear": {
-      "command": "npx",
-      "args": ["-y", "@mkusaka/mcp-server-linear"],
-      "env": { "LINEAR_API_KEY": "YOUR_KEY" }
-    },
-    "context7": {
-      "url": "https://mcp.context7.com/mcp"
-    }
-  }
-}
-```
-
-Enable MCP servers in `~/.claude/settings.json`:
-
-```json
-{
-  "enableAllProjectMcpServers": true
-}
-```
-
-**Antigravity** -- add both MCP servers via Agent Manager > MCP Settings. Use the same packages as above.
-
-## Setting up a new project
+## Quick start
 
 ```bash
 git clone git@github.com:verovec/agent-factory.git ~/projects/my-project
 cd ~/projects/my-project
-# In Claude Code:  /setup
+export GITHUB_TOKEN=...   LINEAR_API_KEY=...   # referenced by .mcp.json, never committed
+# In Claude Code: install the Understand-Anything plugin via /plugin, then run /setup
 ```
 
-## Migrating from older versions
+See [`SETUP.md`](SETUP.md) for the full guide.
 
-Workspaces created with earlier versions (v1/v2/v3) auto-migrate when scaffolding is run. Individual agent files are preserved as legacy nodes in the tree. You can regenerate them at any time using the unified or split agent options.
+## MCP servers
+
+`.mcp.json` ships a lean default set, trusted explicitly via
+`.claude/settings.json` (`enabledMcpjsonServers`). Secrets are `${ENV}` references, never
+literals:
+
+- **context7** — up-to-date library docs on demand
+- **github** — repo / PR / issue operations
+- **linear** — roadmap and card management
+
+Optional servers (database, browser) are offered by `/setup`, off by default.
+
+## Conventions
+
+- **Never commit, push, or deploy without explicit approval.** This is the first always-on
+  rule in `CLAUDE.md`.
+- No emojis. Best practice and long-term maintainability first.
+- Infrastructure is always Terraform on AWS.
+
+## Version
+
+`VERSION` is the local anchor (currently `5.0.0`); a Linear card titled
+`agent-industry-version` mirrors it per workspace.
 
 ## Credits
 
