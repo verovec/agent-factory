@@ -119,7 +119,7 @@ Use Context7 MCP (if available) or web search to look up current best practices 
 - Cost optimization guidance
 - Known gotchas and breaking changes
 
-Also scan the project repos for provider-specific configuration:
+Also scan the project's `stack/` (esp. `stack/terraform`) for provider-specific configuration:
 - AWS: `aws-cdk`, `@aws-sdk`, `boto3`, `.aws/`, terraform AWS provider blocks
 - GCP: `@google-cloud`, terraform Google provider blocks
 - Azure: `@azure`, terraform azurerm provider blocks

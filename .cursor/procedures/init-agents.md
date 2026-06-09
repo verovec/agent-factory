@@ -12,12 +12,14 @@ This repo is cloned once per workspace. Project repositories are cloned INSIDE i
   templates/                         <-- agent templates
   agent/
     workspace-name/                  <-- generated per workspace (named after org_name_slug)
-  repos/                             <-- project repositories (gitignored)
-    my-project/
-    other-repo/
+  stack/                             <-- project source (single monorepo, gitignored)
+    backend/
+    frontend/
+    terraform/
+    docs/
 ```
 
-The `repos/` folder is gitignored. Nothing from the project repos is committed to agent-industry. Nothing from agent-industry is committed to the project's remote. The `agent/` folder is committed so agent files can be shared.
+The `stack/` folder is gitignored. The workspace IS the project repo. Nothing from agent-industry is committed to the project's remote. The `agent/` folder is committed so agent files can be shared.
 
 ## Parameters
 
@@ -171,7 +173,7 @@ Read the template at `templates/config/factory-state.json.example` for the schem
   "linear_project": "{{LINEAR_PROJECT}}",
   "agent_root": "agent/{{ORG_NAME_SLUG}}",
   "initialized_at": "{{DATE}}",
-  "repos": [],
+  "stack": {},
   "tree": {
     "id": "master",
     "type": "master",
@@ -192,7 +194,7 @@ Read the template at `templates/config/factory-state.json.example` for the schem
 }
 ```
 
-Populate the `repos` array by listing subdirectories in `repos/` that contain a `.git` folder.
+Record the detected `stack` technologies (scan `stack/` subfolders for language/framework indicators).
 
 ## Step 8: Confirm to the user
 
