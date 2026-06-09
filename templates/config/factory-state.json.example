@@ -8,7 +8,7 @@
   "linear_project": "workspace-project",
   "agent_root": "agent/workspace-name",
   "initialized_at": "YYYY-MM-DD",
-  "repos": ["repo-one", "repo-two"],
+  "stack": { "backend": null, "frontend": null, "terraform": "aws" },
   "shared_agents": [
     {
       "id": "expert-aws",

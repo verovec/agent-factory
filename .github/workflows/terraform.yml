@@ -1,0 +1,12 @@
+name: terraform
+on:
+  push: { branches: [main], paths: ['stack/terraform/**'] }
+  pull_request: { paths: ['stack/terraform/**'] }
+jobs:
+  tf:
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      path: stack/terraform
+      apply: ${{ github.ref == 'refs/heads/main' }}
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}

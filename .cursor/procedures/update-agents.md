@@ -6,15 +6,15 @@ This is a post-work housekeeping operation. It reads git changes, recent convers
 
 1. Read `.factory-state.json` to get the `tree` and org metadata
 2. Walk the tree recursively to build a flat list of all agent nodes with their types, categories, scopes, scope_paths, and file paths
-3. Detect the current git branch in each repo under `repos/`. If a branch name matches a Linear identifier pattern (e.g. `INF-42-...`), note the ticket(s) involved
 
 ## Step 1: Gather what changed
 
-1. For each repo in `repos/`, run `git diff main --stat` (or the appropriate base branch) to list changed files
-2. Read the current state of all agent files (walk the tree, read each node's file)
-3. Match changed files against agent scopes:
+1. Detect the current git branch at the workspace root (the workspace IS the repo). If the branch name matches a Linear identifier pattern (e.g. `INF-42-...`), note the ticket(s) involved.
+2. Run `git diff main --stat` at the workspace root, scoping output to `stack/` paths, to list changed files.
+3. Read the current state of all agent files (walk the tree, read each node's file)
+4. Match changed files against agent scopes:
    - For each agent node that has `scope_paths`, check if any changed file falls within those paths
-   - For agents with `scope: "full"`, all changes in the relevant repo are in scope
+   - For agents with `scope: "full"`, all changes under `stack/` are in scope
    - For sub-masters, changes are in scope if any of their children's scopes are affected
 
 Build a list of agents that need updating, grouped by parent:

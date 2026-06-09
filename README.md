@@ -43,16 +43,16 @@ The AI reads the agent files for context when you ask questions or work on tasks
 
 ## Workspace layout
 
-Clone this repo once per workspace. It becomes the workspace root. Clone the project repositories inside it under `repos/` (gitignored).
+Clone this repo once per project. It becomes the project repo. Project code lives in `stack/` (committed).
 
 ```
-~/projects/my-workspace/              <-- agent-industry clone (workspace root)
-  templates/                          <-- agent templates
-  agent/                              <-- generated per workspace
-    shared/                           <-- shared expert agents
-  repos/                              <-- project repos (gitignored)
-    my-app/
-  VERSION
+~/projects/my-project/                <-- template clone (becomes the project repo)
+  .claude/                            <-- Claude-first config (source of truth)
+  .github/  .vscode/  .devcontainer/
+  CLAUDE.md  SETUP.md  .mcp.json
+  templates/
+  stack/                              <-- project code (committed)
+    backend/  frontend/  terraform/  docs/
 ```
 
 ## Linear integration
@@ -89,7 +89,8 @@ templates/                           -- agent templates (source of truth)
     factory-state.json.example
     mcp.json.example
 agent/                               -- generated per workspace (gitignored in template)
-repos/                               -- project repos cloned here (gitignored)
+stack/                               -- project code (committed)
+  backend/  frontend/  terraform/  docs/
 .factory-state.json                  -- workspace state (gitignored in template)
 VERSION                              -- local version anchor
 CLAUDE.md                            -- Claude Code project context
@@ -155,21 +156,13 @@ Enable MCP servers in `~/.claude/settings.json`:
 
 **Antigravity** -- add both MCP servers via Agent Manager > MCP Settings. Use the same packages as above.
 
-## Setting up a new workspace
+## Setting up a new project
 
 ```bash
-git clone <agent-industry-url> ~/projects/my-workspace
-cd ~/projects/my-workspace
-mkdir -p repos
-git clone <project-repo-url> repos/my-app
+git clone git@github.com:verovec/agent-factory.git ~/projects/my-project
+cd ~/projects/my-project
+# In Claude Code:  /setup
 ```
-
-Then:
-
-1. Open `~/projects/my-workspace` as the workspace root in your IDE
-2. Create a Linear project for the workspace in your team
-3. Configure the Linear and Context7 MCP servers (see setup above)
-4. Ask the AI to initialize the workspace, or use the scaffolding procedures in `.cursor/procedures/`
 
 ## Migrating from older versions
 

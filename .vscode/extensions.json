@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "hashicorp.terraform",
+    "ms-azuretools.vscode-docker"
+  ]
+}

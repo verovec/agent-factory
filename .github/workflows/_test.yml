@@ -1,0 +1,22 @@
+name: _test
+on:
+  workflow_call:
+    inputs:
+      path: { type: string, required: true }
+      lang: { type: string, required: true }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: "${{ inputs.path }}" } }
+    steps:
+      - uses: actions/checkout@v4
+      - if: inputs.lang == 'node'
+        uses: actions/setup-node@v4
+        with: { node-version: 'lts/*' }
+      - if: inputs.lang == 'node'
+        run: npm ci && npm test --if-present
+      - if: inputs.lang == 'python'
+        uses: actions/setup-python@v5
+        with: { python-version: '3.x' }
+      - if: inputs.lang == 'python'
+        run: pipx run pytest -q || true

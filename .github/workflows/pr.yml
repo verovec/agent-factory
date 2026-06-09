@@ -1,0 +1,16 @@
+name: pr
+on:
+  pull_request:
+jobs:
+  frontend-lint:
+    if: ${{ hashFiles('stack/frontend/package.json') != '' }}
+    uses: ./.github/workflows/_lint.yml
+    with: { path: stack/frontend, lang: node }
+  backend-lint:
+    if: ${{ hashFiles('stack/backend/pyproject.toml') != '' }}
+    uses: ./.github/workflows/_lint.yml
+    with: { path: stack/backend, lang: python }
+  backend-test:
+    if: ${{ hashFiles('stack/backend/pyproject.toml') != '' }}
+    uses: ./.github/workflows/_test.yml
+    with: { path: stack/backend, lang: python }
