@@ -10,11 +10,16 @@ A Claude-first monorepo project template. Clone it once, open in Claude Code, an
 - **GitHub CLI** (`gh`) — authenticated (`gh auth status`); used to create and link the project repo
 - **Node.js + npx** — required to run the stack scaffolding CLIs
 - **Claude Code** — the agent interface this template is designed for
-- **API keys** — edit the placeholders in `.mcp.json` before running `/setup`:
-  - `YOUR_GITHUB_TOKEN` — a GitHub personal access token with repo scope
-  - `YOUR_LINEAR_API_KEY` — a Linear API key (Settings > API > Personal API keys)
+- **API keys** — export these as environment variables before launching Claude Code. The committed `.mcp.json` references them via `${VAR}`, so no secret is ever written to a tracked file:
+  - `GITHUB_TOKEN` — a GitHub personal access token with repo scope
+  - `LINEAR_API_KEY` — a Linear API key (Settings > API > Personal API keys)
 
-Never commit real secrets. `.mcp.json` is gitignored by default; keep it that way.
+```bash
+export GITHUB_TOKEN=...   # add to your shell profile, not the repo
+export LINEAR_API_KEY=...
+```
+
+Never commit real secrets. `.mcp.json` is committed but contains only `${VAR}` references. For supply-chain hardening you may pin exact MCP package versions in `.mcp.json` and add a gitleaks pre-commit hook.
 
 ---
 
@@ -35,7 +40,7 @@ cd my-project
 
 1. Open the `my-project` folder in Claude Code.
 2. Install the **Understand-Anything** plugin via `/plugin`.
-3. Fill in the API key placeholders in `.mcp.json`.
+3. Export `GITHUB_TOKEN` and `LINEAR_API_KEY` in your shell.
 4. Run `/setup`.
 
 ---
@@ -67,7 +72,7 @@ Configured in `.mcp.json` and enabled via `.claude/settings.json` (`enabledMcpjs
 | **github** | http | GitHub MCP (remote) | Repository operations, pull requests, issues, and code search directly in the agent |
 | **linear** | stdio | `@mkusaka/mcp-server-linear` | Linear card management — create, read, and update issues, projects, and roadmap state |
 
-The `YOUR_GITHUB_TOKEN` and `YOUR_LINEAR_API_KEY` placeholders in `.mcp.json` must be replaced with real values before these servers will function.
+`.mcp.json` references `${GITHUB_TOKEN}` and `${LINEAR_API_KEY}`; export those env vars before launching Claude Code and the servers pick them up automatically.
 
 ---
 
@@ -105,8 +110,8 @@ Then continue running `/setup` — it will detect that a remote is already confi
 | `/setup` | Bootstrap the project (run once after cloning) |
 | `/roadmap` | View and update the Linear roadmap |
 | `/card` | Create or update a Linear card |
-| `/research` | Deep research on a topic |
-| `/version` | Show and sync the project version |
-| `/mayday` | Emergency triage — surface errors, dead code, and open TODOs |
+| `/research` | Verify current best practice and latest version before integrating a pattern |
+| `/version` | Compare the local `VERSION` file with the Linear version card |
+| `/mayday` | Menu/router that points you to the right command |
 
 Commands live in `.claude/commands/`.

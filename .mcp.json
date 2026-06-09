@@ -9,13 +9,13 @@
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
-      "headers": { "Authorization": "Bearer YOUR_GITHUB_TOKEN" }
+      "headers": { "Authorization": "Bearer ${GITHUB_TOKEN}" }
     },
     "linear": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@mkusaka/mcp-server-linear@latest"],
-      "env": { "LINEAR_API_KEY": "YOUR_LINEAR_API_KEY" }
+      "args": ["-y", "@mkusaka/mcp-server-linear"],
+      "env": { "LINEAR_API_KEY": "${LINEAR_API_KEY}" }
     }
   }
 }
