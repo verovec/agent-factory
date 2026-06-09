@@ -1,5 +1,5 @@
 {
-  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["context7", "github", "linear"],
   "hooks": {
     "PreToolUse": [
       {
