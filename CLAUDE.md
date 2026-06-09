@@ -4,6 +4,7 @@ This repo is a project template. The workspace IS the monorepo: project code liv
 `stack/` (backend/, frontend/, terraform/, docs/). Run `/setup` to bootstrap a new project.
 
 ## Always-on rules
+- Never commit, push, or deploy on your own. Always ask for explicit approval first.
 - Best practice and long-term maintainability first.
 - Before integrating a new library/pattern/tool, verify current best practice and latest
   stable version via Context7 (web search if needed) before writing code.
