@@ -1,0 +1,25 @@
+name: _terraform
+on:
+  workflow_call:
+    inputs:
+      path: { type: string, default: stack/terraform }
+      apply: { type: boolean, default: false }
+    secrets:
+      AWS_ROLE_ARN: { required: false }
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    permissions: { id-token: write, contents: read }
+    defaults: { run: { working-directory: "${{ inputs.path }}" } }
+    env:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - if: env.AWS_ROLE_ARN != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with: { role-to-assume: "${{ env.AWS_ROLE_ARN }}", aws-region: us-east-1 }
+      - run: terraform init -input=false
+      - run: terraform plan -input=false
+      - if: inputs.apply
+        run: terraform apply -auto-approve -input=false
